@@ -49,3 +49,12 @@ test('invented USD is downgraded to unknown and never promoted from no currency'
  assert.equal(restrictUnsupportedCurrency({currency:null},parseChat('seller: USD 100.')).currency,null);
  assert.equal(restrictUnsupportedCurrency(original,parseChat('seller: USD 100.')),original);
 });
+
+
+test('currency validation supports adjacent digits without accepting another currency code',async()=>{
+ const {restrictUnsupportedCurrency}=await import('./analysis.mjs');
+ const messages=parseChat('seller: One logo costs 100USD.\nbuyer: I accept.');
+ const result={agreementStatus:'CONFIRMED',amount:'100.00',currency:'USD',service:'One logo',pendingIssues:[],evidence:['agreementStatus','amount','currency','service'].map(field=>({field,messageId:'M1',quote:messages[0].text}))};
+ assert.equal(validateResult(result,messages,'stop').currency,'USD');assert.equal(restrictUnsupportedCurrency(result,messages).currency,'USD');
+ assert.equal(restrictUnsupportedCurrency(result,parseChat('seller: 100USDT.')).currency,null);
+});

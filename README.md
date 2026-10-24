@@ -2,7 +2,7 @@
 
 Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English submission interface by default; optional Chinese trial mode.
 
-**Candidate status (October 24, 2026):** 66 local tests pass; the latest 18-case live model run has 15 automated passes and 3 failures (two rate limits, one invalid response). Formal freeze, latest-build live payment acceptance and final submission remain blocked. See the dated acceptance report.
+**Candidate status (October 24, 2026):** 71 local tests pass; the most recent live run of the previous candidate has 15 automated passes and 3 failures (two rate limits, one invalid response). Formal freeze, latest-build live payment acceptance and final submission remain blocked. See the dated acceptance report.
 
 ## Scope
 
@@ -64,11 +64,11 @@ The browser stores the latest invoice operation ID in local storage. The server 
 
 Saved invoice recovery is read-only. Uncertain creation or sending never triggers a blind repeat. Query status and reconcile the invoice number in the sandbox merchant dashboard; do not delete operation records to force a retry. A completed invoice must not be repaid. The app supports one current saved operation per browser profile, not a multi-account dashboard.
 
-The model normally selects source IDs; the server copies original messages instead of asking the model to rewrite long quotations. If it supplies a quotation, a fabricated quotation is still rejected. A missing USD label is never promoted to USD; unsupported invented USD is downgraded to unknown and blocks invoicing. Lossless decimal string padding changes formatting only, while numeric values, negative prices, excessive precision and unsupported prices remain rejected. A confirmed ledger cannot silently omit later financial messages. When the latest buyer explicitly accepts a total, the program compares it with the item sum; a mismatch blocks invoicing rather than inventing an adjustment. These checks also run at the invoice boundary. Source checks establish quotation presence and specified structural invariants. They do not prove that AI understood the scope, contextual acceptance or every later change. Both-party review remains necessary.
+The model normally selects source IDs; the server copies original messages instead of asking the model to rewrite long quotations. If it supplies a quotation, a fabricated quotation is still rejected. A missing USD label is never promoted to USD; unsupported invented USD is downgraded to unknown and blocks invoicing. Lossless decimal string padding changes formatting only, while numeric values, negative prices, excessive precision and unsupported prices remain rejected. A confirmed ledger cannot silently omit later financial messages. When the latest buyer explicitly accepts a total, the program compares it with the item sum; a mismatch blocks invoicing rather than inventing an adjustment. These checks also run at the invoice boundary. Numeric-source follow-up: adjacent labels such as 100USD are recognized without confusing USDT/USDA with USD. If a quote explicitly marks monetary amounts, a character count elsewhere in that message cannot prove a different price. Unsupported or conflicting explicitly accepted totals are blocked, rather than parsed as truncated numbers or treated as absent totals. Source checks establish quotation presence and specified structural invariants. They do not prove that AI understood the scope, contextual acceptance or every later change. Both-party review remains necessary.
 
 ## Verification
 
-`npm test` runs 66 local tests without provider calls. Optional browser regression requires a developer-only installation:
+`npm test` runs 71 local tests without provider calls. Optional browser regression requires a developer-only installation:
 
 ```sh
 npm install --no-save --package-lock=false playwright

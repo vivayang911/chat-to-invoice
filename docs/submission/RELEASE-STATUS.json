@@ -8,7 +8,7 @@
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 66,
+  "localTestsPassed": 71,
   "failures": [
     {
       "id": "E10",
@@ -28,5 +28,8 @@
   ],
   "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested.",
   "submissionLanguage": "en",
-  "defaultUiLanguage": "en"
+  "defaultUiLanguage": "en",
+  "numericSourceFollowUpDate": "2026-10-24",
+  "liveModelRevalidatedAfterNumericSourceFixes": false,
+  "providerCallsDuringNumericSourceFollowUp": 0
 }

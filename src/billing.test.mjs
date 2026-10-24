@@ -73,3 +73,17 @@ test('an internally consistent subtotal cannot override the buyer final accepted
  const checked=calculateBilling([item('B1','80.00')],{...options,modelReportedAmount:'80.00',explicitTotal:'86.75'});assert.equal(checked.amount,null);assert.equal(checked.canInvoice,false);assert.ok(checked.blockers.includes('EXPLICIT_TOTAL_MISMATCH'));
  assert.equal(calculateBilling([item('B1','80.00'),item('B2','6.75')],{...options,modelReportedAmount:'86.75',explicitTotal:'86.75'}).amount,'86.75');
 });
+
+
+test('price evidence cannot use a character count when a different number is explicitly priced',async()=>{
+ const {quotedPriceAmounts,hasExplicitUsd}=await import('./billing.mjs');
+ const messages=[{id:'M1',speaker:'seller',text:'50 characters cost USD 100.'},{id:'M2',speaker:'buyer',text:'I accept the quote.'}];
+ const row={...item('B1','50.00'),priceEvidence:['M1'],quantityEvidence:['M1'],acceptanceEvidence:['M2']};
+ assert.throws(()=>validateBillingItems([row],messages),/quoted unit price/);
+ assert.equal(validateBillingItems([{...row,unitAmount:'100.00'}],messages)[0].unitAmount,'100.00');
+ assert.deepEqual(quotedPriceAmounts('50 characters cost 100USD.'),['100.00']);
+ assert.deepEqual(quotedPriceAmounts('50 characters cost USD 1e2.'),[]);
+ assert.deepEqual(quotedPriceAmounts('That adds 60.'),['60.00']);
+ for(const text of ['100USD','USD100','50usd','100美元'])assert.equal(hasExplicitUsd(text),true);
+ for(const text of ['USDT100','100USDA','No currency specified'])assert.equal(hasExplicitUsd(text),false);
+});

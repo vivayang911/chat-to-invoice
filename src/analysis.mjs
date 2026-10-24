@@ -1,9 +1,9 @@
-import {explicitBuyerTotal,uncoveredFinancialTail} from './source-coverage.mjs';
+import {explicitBuyerTotal,unresolvedBuyerTotal,uncoveredFinancialTail} from './source-coverage.mjs';
 import {contextualReplies,missingContextualReferences} from './negotiation-context.mjs';
 import {requestModelJson} from './model-transport.mjs';
 import {chronologyPrompt,parseChronology,retainHistoricalAcceptances} from './chronology.mjs';
 import {parseModelJson} from '../scripts/parse-model-json.mjs';
-import {attachBilling,validateBillingItems,normalizeNonBillableShape} from './billing.mjs';
+import {attachBilling,validateBillingItems,normalizeNonBillableShape,hasExplicitUsd} from './billing.mjs';
 export function parseChat(text) {
   if(typeof text!=='string'||!text.trim()||text.length>20000) throw Error('Enter a conversation of no more than 20,000 characters.');
   const lines=text.trim().split(/\r?\n/).filter(x=>x.trim());
@@ -21,7 +21,7 @@ export function validateResult(result,messages,finishReason,{requireCoverage=tru
   const fields=['agreementStatus','amount','currency','service','pendingIssues'];
   if(!Array.isArray(result.evidence)||(requireCoverage&&!result.evidence.length)||result.evidence.length>100)fail();
   for(const e of result.evidence)if(!e||!fields.includes(e.field)||!messages.some(m=>m.id===e.messageId&&m.text===e.quote))fail();
-  if(result.currency==='USD'&&(requireCoverage||result.evidence.some(e=>e.field==='currency'))&&!result.evidence.some(e=>e.field==='currency'&&/(?:\bUSD\b|美元)/i.test(e.quote)))fail();
+  if(result.currency==='USD'&&(requireCoverage||result.evidence.some(e=>e.field==='currency'))&&!result.evidence.some(e=>e.field==='currency'&&hasExplicitUsd(e.quote)))fail();
   if(requireCoverage)for(const f of ['agreementStatus',...['amount','currency','service'].filter(f=>result[f]!==null),...(result.pendingIssues.length?['pendingIssues']:[])])if(!result.evidence.some(e=>e.field===f))fail();
   if(result.agreementStatus==='NEEDS_CONFIRMATION'&&result.amount!==null)fail();
   return Object.fromEntries(fields.map(f=>[f,result[f]]).concat([['evidence',result.evidence.map(e=>({field:e.field,messageId:e.messageId,quote:e.quote}))]]));
@@ -61,7 +61,7 @@ export function expandSourceReferences(result,messages){
 }
 // A safety downgrade only: never invent or promote a currency absent from the source.
 export function restrictUnsupportedCurrency(result,messages){
- if(result?.currency!=='USD'||messages.some(m=>/(?:\bUSD\b|美元)/i.test(m.text)))return result;
+ if(result?.currency!=='USD'||messages.some(m=>hasExplicitUsd(m.text)))return result;
  return {...result,currency:null,evidence:Array.isArray(result.evidence)?result.evidence.filter(e=>e?.field!=='currency'):result.evidence,safetyCorrections:['UNSUPPORTED_USD_REMOVED']};
 }
 export function addMissingCurrencyWarning(result,messages,language='en'){
@@ -103,6 +103,11 @@ export async function analyze(messages,{onResponse,language='en',strategy='direc
   const modelReportedCurrency=result?.currency;
   result=restrictUnsupportedCurrency(expandSourceReferences(result,messages),messages);
   result=addMissingCurrencyWarning(addInstructionWarnings(result,messages,language),messages,language);
+  const unresolvedTotal=unresolvedBuyerTotal(messages);
+  if(unresolvedTotal&&Array.isArray(result.pendingIssues)&&!result.pendingIssues.length&&Array.isArray(result.evidence)){
+   const issue=language==='zh'?'客户最后接受的总价不是唯一、明确的 USD 小数金额，请在聊天中重新明确总价。':'The final accepted total is not one unambiguous supported USD decimal. State the total explicitly in the conversation and analyze again.';
+   result={...result,pendingIssues:[issue],evidence:[...result.evidence,{field:'pendingIssues',messageId:unresolvedTotal.messageId,quote:unresolvedTotal.quote}],safetyCorrections:[...(result.safetyCorrections||[]),'UNRESOLVED_EXPLICIT_TOTAL']};
+  }
   const moneyCorrections=[];
   const decimal=value=>{if(typeof value!=='string'||!/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(value))return value;const [whole,fraction='']=value.split('.');const canonical=whole+'.'+fraction.padEnd(2,'0');if(canonical!==value)moneyCorrections.push('decimal string padded: '+value+' → '+canonical);return canonical;};
   result={...result,amount:decimal(result.amount),billingItems:Array.isArray(result.billingItems)?result.billingItems.map(item=>item&&typeof item==='object'?{...item,unitAmount:decimal(item.unitAmount)}:item):result.billingItems};

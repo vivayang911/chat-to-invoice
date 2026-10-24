@@ -15,6 +15,16 @@ export function quotedAmounts(text){
   return whole.length<=8?[whole+'.'+fraction.padEnd(2,'0')]:[];
  });
 }
+// Digits may touch USD; alphabetic currency names such as USDT/USDA must not match.
+export function hasExplicitUsd(text){return /(?:^|[^A-Za-z])USD(?=$|[^A-Za-z])|美元/i.test(text);}
+export const monetaryNumberToken=String.raw`[+\-−]?\s*(?:\d[\d,.]*|\.\d+)(?:[eE][+\-]?\d+)?`;
+export function quotedPriceAmounts(text){
+ const patterns=[new RegExp(String.raw`(?:^|[^A-Za-z])USD\s*(${monetaryNumberToken})`,'gi'),new RegExp(String.raw`(${monetaryNumberToken})\s*USD(?=$|[^A-Za-z])`,'gi'),new RegExp(String.raw`美元\s*(${monetaryNumberToken})`,'g'),new RegExp(String.raw`(${monetaryNumberToken})\s*美元`,'g')];
+ const tagged=patterns.flatMap(pattern=>[...text.matchAll(pattern)].map(match=>match[1]));
+ // Once a source explicitly labels monetary numbers, counts elsewhere cannot prove a price.
+ // Bare follow-up quotes retain the earlier complete numeric-token validation.
+ return tagged.length?tagged.flatMap(quotedAmounts):quotedAmounts(text);
+}
 // Format-only compatibility for non-billable rows. Never promote a pending item,
 // change a price/quantity, invent a source, or relax accepted-item validation.
 export function normalizeNonBillableShape(items){
@@ -45,7 +55,7 @@ export function validateBillingItems(items,messages){
   let matchingPriceIds=[];
   if(item.unitAmount!==null){
    if(!item.priceEvidence.length)fail('price needs original evidence');
-   matchingPriceIds=item.priceEvidence.filter(id=>quotedAmounts(messages.find(m=>m.id===id).text).some(n=>toCents(n)===toCents(item.unitAmount)));
+   matchingPriceIds=item.priceEvidence.filter(id=>quotedPriceAmounts(messages.find(m=>m.id===id).text).some(n=>toCents(n)===toCents(item.unitAmount)));
    if(!matchingPriceIds.length)fail('quoted unit price is not present in its cited source');
   }
   if(item.status==='ACCEPTED'&&(!item.acceptanceEvidence.length||!item.acceptanceEvidence.every(id=>messages.find(m=>m.id===id).speaker==='buyer')))fail('accepted item needs buyer evidence');

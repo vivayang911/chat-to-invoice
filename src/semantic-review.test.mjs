@@ -27,3 +27,11 @@ test('lossless decimal padding retains quoted value; numeric and excessive preci
  try{for(const price of ['100',100,'100.001']){const raw={...fixture.billingResult,billingItems:fixture.billingResult.billingItems.map(i=>({...i,unitAmount:price}))};globalThis.fetch=async()=>({ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(raw)}}]})});if(typeof price==='string'&&price==='100'){const result=await analyze(fixture.messages);assert.equal(result.amount,'100.00');assert.ok(result.formatCorrections.some(c=>c.includes('decimal string padded')));}else await assert.rejects(analyze(fixture.messages));}
  }finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
 });
+
+
+test('a model-confirmed amount cannot bypass an unsupported final customer total',async()=>{
+ const messages=parseChat('seller: One logo costs USD 100.\nbuyer: I accept total USD 1e3.');
+ const raw={agreementStatus:'CONFIRMED',amount:'100.00',currency:'USD',service:'One logo',pendingIssues:[],billingItems:[{id:'B1',description:'One logo',status:'ACCEPTED',quantity:1,unitAmount:'100.00',priceBasis:'ONE_OFF',priceEvidence:['M1'],quantityEvidence:['M1'],acceptanceEvidence:['M2']}],evidence:['agreementStatus','amount','currency','service'].map(field=>({field,messageId:field==='agreementStatus'?'M2':'M1'}))};
+ const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic-key';
+ try{globalThis.fetch=async()=>({ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(raw)}}]})});const result=await analyze(messages);assert.equal(result.amount,null);assert.equal(result.calculation.canInvoice,false);assert.ok(result.safetyCorrections.includes('UNRESOLVED_EXPLICIT_TOTAL'));assert.ok(result.evidence.some(e=>e.field==='pendingIssues'&&e.quote===messages[1].text));}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
+});

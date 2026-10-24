@@ -2,6 +2,16 @@
 
 **Decision: local review candidate; NOT accepted for final competition submission.** Scope is frozen. No feature expansion, public deployment or automated payment has been added.
 
+## Numeric-source follow-up — October 24, 2026
+
+Three reproduced parser defects have been fixed without adding product features:
+
+- `100USD` and `USD100` are recognized as USD while alphabetic extensions such as USDT/USDA are not treated as USD.
+- For `50 characters cost USD 100`, the value 50 can no longer establish the unit price. Explicit currency-tagged amounts take precedence over counts elsewhere in that same source. Bare follow-up prices retain complete numeric-token validation.
+- Accepted total parsing consumes complete monetary tokens. Exponents, negative values, malformed grouping and excess precision cannot become a truncated positive total. An explicitly stated but unsupported/ambiguous USD total is blocked as an open issue; it is not silently treated as an absent total. No balancing fee or guessed amount is inserted.
+
+The 71 local tests pass. Isolated-provider full-flow, English default, session/language recovery and expiry/uncertainty browser checks pass. The source scan covers 31 JavaScript/module files, 5 JSON fixtures and 2 page-binding checks. No live model or PayPal calls were made during this follow-up, so the historical live model result below is not a new validation of the changed source. Formal freeze and final submission remain blocked.
+
 ## Repairs in this candidate
 
 1. Open issues now independently block invoicing even if the model omits a PENDING billing row. An observed unanswered-poster response previously had a payable USD 100 total despite explicitly saying the poster was unresolved. The accepted subtotal may remain visible, but the final amount is null and both browser and server block financial creation. A resolved checkbox cannot bypass this boundary.
@@ -14,7 +24,7 @@
 
 | Check | Result | What it proves and excludes |
 |---|---|---|
-| Node local suite | 66/66 pass | Covered validation, arithmetic, evidence, locks and recovery invariants; zero real provider calls |
+| Node local suite | 71/71 pass | Covered validation, arithmetic, evidence, locks and recovery invariants; zero real provider calls |
 | Source scan | 31 JS/module files, 5 JSON fixtures, 2 page binding scans; no findings | Syntax/JSON/static DOM bindings only; not a security audit |
 | Full-flow browser test | Pass | Isolated HTTP and temporary stores, separate browser contexts, restart before creation, draft/reload, separate send consent, simulated PAID query/reload, mobile width; one simulated create and one simulated send |
 | Separate-party browser test | Pass | Same USD 310 statement, seller alone blocked, both acknowledgements required, customer correction, invalid old tokens and edit invalidation |
@@ -25,7 +35,7 @@ The full-flow test uses a saved synthetic model response and simulated payment p
 
 ## Latest candidate result
 
-Complete current-source run: `evaluation-2026-10-24T02-46-55-144Z`, 18 synthetic cases. **15 automated passes requiring manual review; 3 request/validation failures; release gate remains BLOCKED_OR_INCOMPLETE.** E10 and E11 hit HTTP 429 limits despite the existing bounded transport retry. E12 returned invalid/missing itemized structure after its bounded correction. No further bulk retries were initiated after this run.
+Most recent live run of the previous candidate: `evaluation-2026-10-24T02-46-55-144Z`, 18 synthetic cases. **15 automated passes requiring manual review; 3 request/validation failures; release gate remains BLOCKED_OR_INCOMPLETE.** E10 and E11 hit HTTP 429 limits despite the existing bounded transport retry. E12 returned invalid/missing itemized structure after its bounded correction. No further bulk retries were initiated after this run.
 
 E16 now returned the correct two-line USD 86.75 result. E13/E14 returned USD 310/USD 210 with the exact expected components. Passing these cases does not cancel the other failures. This candidate is not formally frozen. No latest-build live Sandbox draft/send/payment was initiated because the complete release gate did not pass. The guarded acceptance harness does not bypass that gate. Final video/YouTube upload and Devpost submission are not complete.
 

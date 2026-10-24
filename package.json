@@ -1,0 +1,1 @@
+{"name":"chat-to-invoice","private":true,"type":"module","scripts":{"start":"node --env-file=work/agnes-model.env --env-file=work/paypal-sandbox.env src/server.mjs","test":"node --test src/*.test.mjs scripts/parse-model-json.test.mjs"},"engines":{"node":">=22"}}

@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-24T02-46-55-144Z",
+  "model": "agnes-3.0-flash",
+  "completeSuite": true,
+  "cases": 18,
+  "automatedPassed": 15,
+  "releaseGate": "BLOCKED_OR_INCOMPLETE",
+  "formalFreeze": false,
+  "newLivePaymentVerified": false,
+  "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
+  "localTestsPassed": 66,
+  "failures": [
+    {
+      "id": "E10",
+      "status": "REQUEST_OR_VALIDATION_FAILED",
+      "error": "The model service returned HTTP 429. Please retry later."
+    },
+    {
+      "id": "E11",
+      "status": "REQUEST_OR_VALIDATION_FAILED",
+      "error": "The model service returned HTTP 429. Please retry later."
+    },
+    {
+      "id": "E12",
+      "status": "REQUEST_OR_VALIDATION_FAILED",
+      "error": "The billing check failed: itemized pricing is required"
+    }
+  ],
+  "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested."
+}

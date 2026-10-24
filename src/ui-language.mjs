@@ -1,7 +1,7 @@
 import {translate} from './ui-strings.mjs';
 const requested=new URL(location.href).searchParams.get('lang');
 let saved;try{saved=localStorage.getItem('chatInvoiceLanguage');}catch{}
-export const language=['zh','en'].includes(requested)?requested:saved==='en'?'en':'zh';
+export const language=['zh','en'].includes(requested)?requested:saved==='zh'?'zh':'en';
 export const t=value=>translate(value,language);
 document.documentElement.lang=language==='zh'?'zh-CN':'en';
 const nodes=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);

@@ -1,6 +1,6 @@
 # Chat to Invoice
 
-Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English and Chinese interfaces.
+Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English submission interface by default; optional Chinese trial mode.
 
 **Candidate status (October 24, 2026):** 66 local tests pass; the latest 18-case live model run has 15 automated passes and 3 failures (two rate limits, one invalid response). Formal freeze, latest-build live payment acceptance and final submission remain blocked. See the dated acceptance report.
 
@@ -44,7 +44,7 @@ npm test
 npm start
 ```
 
-Open [English](http://127.0.0.1:4187/?lang=en) or [Chinese](http://127.0.0.1:4187/?lang=zh). Use `127.0.0.1`, not `localhost`, because the server enforces the exact loopback origin. The fixed provider endpoint is PayPal Sandbox; there is no live-payment switch.
+The first visit defaults to English. Open [English](http://127.0.0.1:4187/?lang=en) or [Chinese](http://127.0.0.1:4187/?lang=zh). Use `127.0.0.1`, not `localhost`, because the server enforces the exact loopback origin. The fixed provider endpoint is PayPal Sandbox; there is no live-payment switch.
 
 ## Workflow
 
@@ -88,12 +88,12 @@ Live synthetic model regression (may consume your provider quota):
 node --env-file=work/agnes-model.env scripts/evaluate-app-model.mjs
 ```
 
-Optional selected IDs follow the command, for example `E02 E11 E12`. Results are saved in `work/evaluation-*`. The evaluator now includes 18 cases: the original 14 plus conditional acceptance, a one-off character package, an explicitly accepted quantity reduction and an ambiguous reply to alternative offers. The evaluator never imports PayPal or initiates invoices/payments. Automated passes are not statistical accuracy estimates or proof of semantic correctness. Read [the dated acceptance and delivery report](docs/提交材料/ACCEPTANCE-AND-DELIVERY.md) for current failures and release status.
+Optional selected IDs follow the command, for example `E02 E11 E12`. Results are saved in `work/evaluation-*`. The evaluator now includes 18 cases: the original 14 plus conditional acceptance, a one-off character package, an explicitly accepted quantity reduction and an ambiguous reply to alternative offers. The evaluator never imports PayPal or initiates invoices/payments. Automated passes are not statistical accuracy estimates or proof of semantic correctness. Read [the dated acceptance and delivery report](docs/submission/ACCEPTANCE-AND-DELIVERY.md) for current failures and release status.
 
 A historical USD 100 application invoice was paid in Sandbox and queried again on October 24, 2026. It predates the latest separate-acknowledgement workflow and is not a fresh payment test of this build.
 
 ## Delivery
 
-See [quick start](docs/提交材料/QUICKSTART.md), [project description](docs/提交材料/PROJECT.md) and [English recording script](docs/提交材料/DEMO-SCRIPT.md). The archive excludes credentials, private transaction state and rehearsal videos. Its manifest records file hashes; packaging runs tests and startup checks after clean extraction.
+See [quick start](docs/submission/QUICKSTART.md), [project description](docs/submission/PROJECT.md) and [English recording script](docs/submission/DEMO-SCRIPT.md). The archive excludes credentials, private transaction state and rehearsal videos. Its manifest records file hashes; packaging runs tests and startup checks after clean extraction.
 
 The public source repository is https://github.com/vivayang911/chat-to-invoice . Publication of source is not a completed competition submission. Final YouTube video, latest-build live payment verification and judging-access arrangements must be verified before submission. No real-user trial or measured time savings are claimed. Keep the scope frozen; fix identified defects rather than adding payment products or automatic decisions.

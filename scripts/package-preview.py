@@ -26,9 +26,9 @@ files = [Path(x) for x in ['README.md', 'LICENSE', 'package.json', '.gitignore',
          'scripts/check-expiry-uncertainty.cjs',
          'scripts/check-acknowledgement-recovery.cjs',
          'scripts/check-statement-session.cjs', 'scripts/check-release-flow.cjs', 'scripts/browser-runtime.cjs',
-         'docs/提交材料/ACCEPTANCE-AND-DELIVERY.md', 'docs/提交材料/RELEASE-STATUS.json',
-         'docs/提交材料/PROJECT.md', 'docs/提交材料/DEMO-SCRIPT.md',
-         'docs/提交材料/USER-TRIAL.md', 'docs/提交材料/QUICKSTART.md']]
+         'docs/submission/ACCEPTANCE-AND-DELIVERY.md', 'docs/submission/RELEASE-STATUS.json',
+         'docs/submission/PROJECT.md', 'docs/submission/DEMO-SCRIPT.md',
+         'docs/submission/USER-TRIAL.md', 'docs/submission/QUICKSTART.md']]
 files += [p.relative_to(root) for p in sorted((root / 'src').rglob('*')) if p.is_file()]
 
 # Compare against local credential values in memory. Never print values or include env files.

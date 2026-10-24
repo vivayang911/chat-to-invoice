@@ -26,5 +26,7 @@
       "error": "The billing check failed: itemized pricing is required"
     }
   ],
-  "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested."
+  "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested.",
+  "submissionLanguage": "en",
+  "defaultUiLanguage": "en"
 }

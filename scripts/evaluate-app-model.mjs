@@ -6,7 +6,11 @@ const runId=new Date().toISOString().replace(/[:.]/g,'-');
 const directory=new URL(`../work/evaluation-${runId}/`,import.meta.url);
 await mkdir(directory,{recursive:true});
 const results=[];
+// Pace sequential acceptance calls to avoid a burst against a shared provider quota.
+const pauseMs=Number(process.env.MODEL_EVAL_PAUSE_MS??3000);
+if(!Number.isInteger(pauseMs)||pauseMs<0||pauseMs>30000)throw Error('MODEL_EVAL_PAUSE_MS must be an integer between 0 and 30000.');
 const selected=process.argv.slice(2);if(selected.some(id=>!evaluationCases.some(x=>x.id===id)))throw Error('Unknown evaluation case ID.');for(const fixture of evaluationCases.filter(x=>!selected.length||selected.includes(x.id))){
+ if(results.length&&pauseMs)await new Promise(resolve=>setTimeout(resolve,pauseMs));
  const started=Date.now();let entry;
  try{
   const messages=parseChat(fixture.chat),extracted=await analyze(messages,{language:fixture.language||'en',strategy:process.env.ANALYSIS_STRATEGY||'direct',onResponse:raw=>writeFile(new URL(fixture.id+'-'+raw.stage+'-response.json',directory),JSON.stringify(raw,null,2))});
@@ -33,7 +37,7 @@ const selected=process.argv.slice(2);if(selected.some(id=>!evaluationCases.some(
 }
 const complete=results.length===evaluationCases.length;
 const allPassed=results.every(x=>x.status==='AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED');
-await writeFile(new URL('summary.json',directory),JSON.stringify({runId,model:'agnes-3.0-flash',contract:'ITEMIZED_BILLING_V1',strategy:process.env.ANALYSIS_STRATEGY||'direct',criteria:'final gate, source references, and explicit component coverage; no proof of semantic correctness',releaseGate:complete&&allPassed?'AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED':'BLOCKED_OR_INCOMPLETE',completeSuite:complete,results,limitation:'One synthetic run per case. Automated checks do not establish semantic correctness or production accuracy. No invoice or payment requests.'},null,2));
+await writeFile(new URL('summary.json',directory),JSON.stringify({runId,pauseMs,model:'agnes-3.0-flash',contract:'ITEMIZED_BILLING_V1',strategy:process.env.ANALYSIS_STRATEGY||'direct',criteria:'final gate, source references, and explicit component coverage; no proof of semantic correctness',releaseGate:complete&&allPassed?'AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED':'BLOCKED_OR_INCOMPLETE',completeSuite:complete,results,limitation:'One synthetic run per case. Automated checks do not establish semantic correctness or production accuracy. No invoice or payment requests.'},null,2));
 console.log(JSON.stringify({savedDirectory:directory.pathname,total:results.length,automatedPassed:results.filter(x=>x.status==='AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED').length}));
 
 // A diagnostic report is always saved, but a blocked/incomplete gate must fail CI.

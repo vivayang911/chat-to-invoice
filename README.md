@@ -88,6 +88,8 @@ Live synthetic model regression (may consume your provider quota):
 node --env-file=work/agnes-model.env scripts/evaluate-app-model.mjs
 ```
 
+The evaluator waits 3 seconds between cases by default. Set `MODEL_EVAL_PAUSE_MS` to an integer from 0 to 30000 to adjust pacing; this does not bypass provider quotas. A selected-case run remains an incomplete release gate even if every selected case passes.
+
 Optional selected IDs follow the command, for example `E02 E11 E12`. Results are saved in `work/evaluation-*`. The evaluator now includes 18 cases: the original 14 plus conditional acceptance, a one-off character package, an explicitly accepted quantity reduction and an ambiguous reply to alternative offers. The evaluator never imports PayPal or initiates invoices/payments. Automated passes are not statistical accuracy estimates or proof of semantic correctness. Read [the dated acceptance and delivery report](docs/submission/ACCEPTANCE-AND-DELIVERY.md) for current failures and release status.
 
 A historical USD 100 application invoice was paid in Sandbox and queried again on October 24, 2026. It predates the latest separate-acknowledgement workflow and is not a fresh payment test of this build.

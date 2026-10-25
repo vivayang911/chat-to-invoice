@@ -108,3 +108,8 @@ Browser simulation reproduced a stale statement when only the confirmation URL f
 
 
 Targeted live follow-up (2026-10-25T02:52:32Z): E05 passes all automated checks after the source-review fix; E18 returns HTTP 429. This two-case probe is incomplete and does not replace the full release gate. No PayPal calls.
+
+
+### Paced complete live run, October 25
+
+Run 2026-10-25T02:54:24Z evaluated all 18 cases against the current source with a 3000 ms inter-case pause: 15 automated passes requiring review, and HTTP 429 failures for E03, E11 and E13. No returned result failed the scenario checks in this run. E05 and E18 both passed within this same complete run. This remains a blocked release gate because three cases did not complete; do not merge successes from other runs or infer a statistical accuracy rate. No new PayPal invoice, send or payment was requested. Local tests remain 75/75 passing.

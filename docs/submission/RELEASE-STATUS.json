@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-10-25T02-45-32-494Z",
+  "checkedAt": "2026-10-25T02-54-24-686Z",
   "model": "agnes-3.0-flash",
   "completeSuite": true,
   "cases": 18,
-  "automatedPassed": 7,
+  "automatedPassed": 15,
   "releaseGate": "BLOCKED_OR_INCOMPLETE",
   "formalFreeze": false,
   "newLivePaymentVerified": false,
@@ -11,17 +11,7 @@
   "localTestsPassed": 75,
   "failures": [
     {
-      "id": "E05",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The billing check failed: buyer acceptance predates the cited price"
-    },
-    {
-      "id": "E09",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E10",
+      "id": "E03",
       "status": "REQUEST_OR_VALIDATION_FAILED",
       "error": "The model service returned HTTP 429. Please retry later."
     },
@@ -31,63 +21,26 @@
       "error": "The model service returned HTTP 429. Please retry later."
     },
     {
-      "id": "E12",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
       "id": "E13",
       "status": "REQUEST_OR_VALIDATION_FAILED",
       "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E14",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E15",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E16",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E17",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E18",
-      "status": "REVIEW_REQUIRED",
-      "checks": {
-        "amount": false,
-        "status": false,
-        "currency": true,
-        "pending": false,
-        "itemizedCalculation": true,
-        "invoiceGate": false
-      }
     }
   ],
   "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested.",
   "submissionLanguage": "en",
   "defaultUiLanguage": "en",
   "numericSourceFollowUpDate": "2026-10-24",
-  "liveModelRevalidatedAfterNumericSourceFixes": false,
+  "liveModelRevalidatedAfterNumericSourceFixes": true,
   "providerCallsDuringNumericSourceFollowUp": 0,
   "chronologyFollowUpDate": "2026-10-25",
   "chronologyFollowUp": "Require buyer acceptance after every cited quantity source and every matching cited price source.",
-  "liveModelRevalidatedAfterChronologyFixes": false,
+  "liveModelRevalidatedAfterChronologyFixes": true,
   "providerCallsDuringChronologyFollowUp": 0,
   "postRunFixes": [
     "Generic acknowledgement after differently priced alternatives cannot authorize a selected option.",
     "One bounded source review for invalid price/quantity chronology; all normal source checks remain mandatory."
   ],
-  "postFixLiveSuiteCompleted": false,
+  "postFixLiveSuiteCompleted": true,
   "savedFailureReplay": "E18 blocked after correction remained ambiguous; two simulated responses, no real calls.",
   "buyerNavigationFollowUp": {
     "date": "2026-10-25",
@@ -103,5 +56,6 @@
     "E18": "HTTP_429",
     "completeSuite": false,
     "releaseGate": "BLOCKED_OR_INCOMPLETE"
-  }
+  },
+  "evaluationPauseMs": 3000
 }

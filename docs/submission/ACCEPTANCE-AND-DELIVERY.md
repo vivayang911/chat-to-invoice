@@ -174,3 +174,12 @@ Run 2026-10-25T12:04:28Z evaluated all 20 scenarios against the source published
 Follow-up: a whole-ledger correction with zero source evidence now fails explicitly rather than starting another citation repair. The prompt now requires the latest financial message to be cited, distinguishing a seller scope recap from buyer approval. 88 local tests pass, including proof that an empty correction stops after two requests. These subsequent source changes require fresh full verification; targeted reruns do not replace it. No PayPal calls.
 
 Targeted follow-up 2026-10-25T12:18:02Z: E05 still timed out (90.005 seconds), E10 passed all checks (24.956 seconds). Do not merge this partial run into the completed 16/20 result or claim a complete pass.
+
+
+### Historical acceptance reference preservation
+
+Added a constrained historical-reference selection path for uniquely matched PENDING rows when a later buyer message changes the request. It verifies existing row and aggregate formats first, permits only original candidate buyer IDs, merges references without losing prior ones, and retains the current status, quantity, price and description. A historical acknowledgement cannot approve the later changed quantity. No repair is attempted for ambiguous shared price sources or a reply without a later change. Current pending rows display these as historical replies, not approval of the new request.
+
+91 local tests pass, including replay of the previous E11 missing-history response, unchanged pending state and payable blocking, strict response schema, unsupported sources and preservation of existing references. Isolated itemized and stability browser checks pass.
+
+Targeted real E11 run 2026-10-25T12:26:51Z was initially REVIEW_REQUIRED only because component_text was false. Inspection showed a valid row named 50字符文本 priced at USD 60, plus buyer M5 history and a still-pending poster change. The evaluator did not recognize 文本/字符, so its synonym pattern was corrected. The original API result remains untouched; work/evaluation-component-review-20261025.json records the separate offline correction with no further API calls. This was an evaluator false negative, not a missing fee. The model initial response already had history, so the newly added repair branch is proven locally, not claimed as a live-model branch execution. The complete 20-case gate remains blocked. No PayPal calls.

@@ -8,7 +8,7 @@
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 88,
+  "localTestsPassed": 91,
   "failures": [
     {
       "id": "E05",
@@ -171,5 +171,17 @@
     "E10": "AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
     "E10LatencyMs": 24956,
     "completeSuite": false
+  },
+  "historicalAcceptanceFollowUp": {
+    "pendingRowsStayPending": true,
+    "billingFactsUnchanged": true,
+    "savedFailureReplayPassed": true,
+    "liveE11Run": "2026-10-25T12-26-51-467Z",
+    "liveResultInitially": "REVIEW_REQUIRED",
+    "evaluatorFalseNegative": "50字符文本 was not recognized by the text component regex",
+    "sourceOutputHasRequiredTextFee": true,
+    "liveHistoricalRepairBranchExercised": false,
+    "originalResultPreserved": true,
+    "offlineRecheckOnly": true
   }
 }

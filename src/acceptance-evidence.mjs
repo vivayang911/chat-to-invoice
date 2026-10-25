@@ -14,5 +14,20 @@ export function applyAcceptanceRepair(items,targets,reply){
  const refs=reply.acceptanceEvidence,ids=targets.map(x=>x.itemId);
  if(Object.keys(refs).length!==ids.length||Object.keys(refs).some(id=>!ids.includes(id)))fail();
  for(const target of targets){const values=refs[target.itemId];if(!Array.isArray(values)||!values.length||values.length>20||!values.every(id=>target.candidateBuyerIds.includes(id)))fail();}
- return items.map(item=>ids.includes(item.id)?{...item,acceptanceEvidence:[...new Set(refs[item.id])]}:item);
+ return items.map(item=>ids.includes(item.id)?{...item,acceptanceEvidence:[...new Set([...item.acceptanceEvidence,...refs[item.id]])]}:item);
+}
+
+// Historical replies on still-pending rows are not approval of a revised quantity.
+export function historicalRepairTargets(items,candidates,messages){
+ if(!Array.isArray(items))return [];
+ const targets=[];
+ for(const pair of candidates){
+  if(!pair.laterBuyerMessage||messages.find(m=>m.id===pair.replyId)?.speaker!=='buyer')continue;
+  const rows=items.filter(item=>item.status==='PENDING'&&item.priceEvidence?.includes(pair.quoteId));
+  if(rows.length!==1||!Array.isArray(rows[0].acceptanceEvidence)||rows[0].acceptanceEvidence.includes(pair.replyId))continue;
+  const item=rows[0];let target=targets.find(x=>x.itemId===item.id);
+  if(!target){target={itemId:item.id,description:item.description,currentStatus:'PENDING',quantity:item.quantity,unitAmount:item.unitAmount,priceSourceIds:item.priceEvidence,candidateBuyerIds:[]};targets.push(target);}
+  target.candidateBuyerIds.push(pair.replyId);
+ }
+ return targets;
 }

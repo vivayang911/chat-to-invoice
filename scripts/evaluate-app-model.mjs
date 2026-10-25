@@ -24,9 +24,9 @@ const selected=process.argv.slice(2);if(selected.some(id=>!evaluationCases.some(
   if(fixture.id==='E09')checks.noCollectibleItems=extracted.amount===null&&extracted.service===null&&!extracted.billingItems.some(i=>i.status==='ACCEPTED');
   if(['E13','E14'].includes(fixture.id)){
    const accepted=extracted.billingItems.filter(item=>item.status==='ACCEPTED');
-   checks.exactSettledComponents=accepted.length===3&&[['logo',1,'100.00'],['poster|海报',fixture.id==='E13'?3:1,'50.00'],['text|characters|文字',1,'60.00']].every(([pattern,quantity,price])=>accepted.some(item=>new RegExp(pattern,'i').test(item.description)&&item.quantity===quantity&&item.unitAmount===price));
+   checks.exactSettledComponents=accepted.length===3&&[['logo',1,'100.00'],['poster|海报',fixture.id==='E13'?3:1,'50.00'],['text|characters|文字|文本|字符',1,'60.00']].every(([pattern,quantity,price])=>accepted.some(item=>new RegExp(pattern,'i').test(item.description)&&item.quantity===quantity&&item.unitAmount===price));
   }
-  if(fixture.id==='E12')checks.correctIntermediateStates=extracted.billingItems.some(i=>/poster|海报/i.test(i.description)&&i.status==='ACCEPTED'&&i.acceptanceEvidence.includes('M5'))&&extracted.billingItems.some(i=>/text|characters|文字/i.test(i.description)&&i.status==='PENDING');
+  if(fixture.id==='E12')checks.correctIntermediateStates=extracted.billingItems.some(i=>/poster|海报/i.test(i.description)&&i.status==='ACCEPTED'&&i.acceptanceEvidence.includes('M5'))&&extracted.billingItems.some(i=>/text|characters|文字|文本|字符/i.test(i.description)&&i.status==='PENDING');
   if(fixture.id==='E11')checks.changedPosterStillPending=extracted.billingItems.some(i=>/poster|海报/i.test(i.description)&&i.status==='PENDING');
   if(fixture.acceptedLineAmounts)checks.exactAcceptedLines=JSON.stringify(extracted.calculation.lines.map(line=>line.amount).sort())===JSON.stringify([...fixture.acceptedLineAmounts].sort());
   // Scope exclusions are reviewed manually: mentioning an explicit exclusion is acceptable.

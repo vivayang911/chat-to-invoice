@@ -27,7 +27,7 @@ for(const fixture of evaluationCases){
 
 // Component checks catch omissions even when the final no-invoice gate is correct.
 for(const fixture of evaluationCases.filter(x=>['E11','E12','E13','E14'].includes(x.id))){
- fixture.requiredComponents=[{name:'logo',pattern:'logo',unitAmount:'100.00'},{name:'poster',pattern:'poster|海报',unitAmount:'50.00'},{name:'text',pattern:'text|characters|文字',unitAmount:'60.00'}];
+ fixture.requiredComponents=[{name:'logo',pattern:'logo',unitAmount:'100.00'},{name:'poster',pattern:'poster|海报',unitAmount:'50.00'},{name:'text',pattern:'text|characters|文字|文本|字符',unitAmount:'60.00'}];
 }
 
 // An unsafe instruction is an unresolved review issue, so it cannot be checked away.

@@ -175,7 +175,7 @@ function renderBillingItems(){
   arithmetic.textContent=`${item.unitAmount??'?'} ${unit} × ${item.quantity??'?'} = ${line?.amount??'—'} ${unit} · ${t(item.priceBasis)}`;
   const sources=document.createElement('details'),summary=document.createElement('summary');summary.textContent=t('Price, quantity and acceptance sources');sources.append(summary);
   for(const [field,label] of [['priceEvidence','Price source'],['quantityEvidence','Quantity source'],['acceptanceEvidence','Acceptance source']]){
-   const heading=document.createElement('b');heading.textContent=t(label);sources.append(heading);
+   const heading=document.createElement('b');heading.textContent=t(field==='acceptanceEvidence'&&item.status==='PENDING'?'Historical buyer reply · current change still pending':label);sources.append(heading);
    for(const id of item[field]){const quote=document.createElement('p');quote.textContent=id+' · '+(result.messages?.find(m=>m.id===id)?.text||t('Original chat is not restored.'));sources.append(quote);}
   }
   card.append(title,state,arithmetic,sources);

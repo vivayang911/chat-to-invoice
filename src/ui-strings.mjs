@@ -1,4 +1,6 @@
 export const zh = {
+"Historical buyer reply · current change still pending":"历史客户接受依据 · 当前变更仍待确认",
+"The model historical-reference check was incomplete.":"历史接受依据检查未完成，当前不能开单。",
 "The model review returned no original-message evidence. Clarify the agreement and analyze again.":"模型纠正结果没有任何原文依据，已停止补查并阻止开单。请明确约定后重新分析。",
 "The model could not establish buyer acceptance from the original messages. Clarify the agreement and analyze again.":"未能从原始聊天确认客户接受依据。请明确回复所接受的事项、数量和报价后重新分析；当前不能开单。",
 "Model arithmetic corrected by the program":"模型加总错误，已按逐项明细由程序重算",

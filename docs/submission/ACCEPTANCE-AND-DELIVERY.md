@@ -165,3 +165,12 @@ Missing buyer references now use a separate constrained ID-only selection step a
 ### Confirmation persistence acceptance
 
 87 local tests pass. A persisted two-party statement retains both the original model arithmetic value, its program correction audit and item-level buyer references across store restart. The restored statement authorizes only its exact confirmed amount, and a subsequent buyer correction still blocks it. Isolated itemized browser acceptance and session/network-recovery checks pass. No real model or PayPal calls during this follow-up. The English user-operated demonstration record is now included in the source package; full 20-case live gate and latest-format Sandbox acceptance remain pending.
+
+
+### Complete 20-case live suite and follow-up
+
+Run 2026-10-25T12:04:28Z evaluated all 20 scenarios against the source published at e6da3ff8e7cad83dd5db48a3e90d67bfe13730c0: 16 automated passes requiring review. E05 and E07 timed out at 90 seconds; E10 was rejected for missing later financial-message coverage; E11 was rejected for missing contextual acceptance evidence. The median duration was 30.8 seconds and the nearest-rank 95th percentile was 90.0 seconds. E19 and E20 both passed with exact component amounts (USD 12 and USD 3900). This is not an accuracy estimate, a statistical reliability claim or a passing release gate.
+
+Follow-up: a whole-ledger correction with zero source evidence now fails explicitly rather than starting another citation repair. The prompt now requires the latest financial message to be cited, distinguishing a seller scope recap from buyer approval. 88 local tests pass, including proof that an empty correction stops after two requests. These subsequent source changes require fresh full verification; targeted reruns do not replace it. No PayPal calls.
+
+Targeted follow-up 2026-10-25T12:18:02Z: E05 still timed out (90.005 seconds), E10 passed all checks (24.956 seconds). Do not merge this partial run into the completed 16/20 result or claim a complete pass.

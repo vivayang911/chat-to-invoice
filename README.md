@@ -6,7 +6,7 @@ Turn a negotiated conversation into an itemized fee statement and a PayPal Sandb
 
 ## Scope
 
-One problem: keep negotiated charges reviewable before invoicing. Agnes `agnes-3.0-flash` extracts charges and original-message references. The program calculates prices × quantities in integer cents. Pending financial items, open issues, missing currency and inconsistent totals block invoicing. A checkbox cannot override an unresolved issue: clarify the conversation and analyze again.
+One problem: keep negotiated charges reviewable before invoicing. Agnes `agnes-3.0-flash` extracts charges and original-message references. The program calculates prices × quantities in integer cents. Pending financial items, open issues, missing currency and conflicts with an explicitly accepted customer total block invoicing. The program is responsible for arithmetic; model-only addition errors are retained in an audit when corrected. A checkbox cannot override an unresolved issue: clarify the conversation and analyze again.
 
 Seller and customer acknowledge the same fixed statement on separate pages. Editing or requesting changes withdraws that version. The server checks both acknowledgements before creating a PayPal draft and again before sending. Buyer payment occurs on PayPal; only a PayPal status query establishes PAID. The AI has no payment tools.
 

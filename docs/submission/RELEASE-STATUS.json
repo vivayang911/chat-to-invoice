@@ -1,29 +1,34 @@
 {
-  "checkedAt": "2026-10-25T02-54-24-686Z",
+  "checkedAt": "2026-10-25T12-04-28-324Z",
   "model": "agnes-3.0-flash",
   "completeSuite": true,
-  "cases": 18,
-  "automatedPassed": 15,
+  "cases": 20,
+  "automatedPassed": 16,
   "releaseGate": "BLOCKED_OR_INCOMPLETE",
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 87,
+  "localTestsPassed": 88,
   "failures": [
     {
-      "id": "E03",
+      "id": "E05",
       "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "id": "E07",
+      "status": "REQUEST_OR_VALIDATION_FAILED",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "id": "E10",
+      "status": "REQUEST_OR_VALIDATION_FAILED",
+      "error": "The model omitted later financial messages. Clarify the conversation and analyze again."
     },
     {
       "id": "E11",
       "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
-    },
-    {
-      "id": "E13",
-      "status": "REQUEST_OR_VALIDATION_FAILED",
-      "error": "The model service returned HTTP 429. Please retry later."
+      "error": "The model missed contextual acceptance evidence. Clarify the reply explicitly and analyze again."
     }
   ],
   "limitation": "Synthetic regression and local tests do not prove statistical accuracy or semantic correctness. No new invoice or payment was requested.",
@@ -145,5 +150,26 @@
     "sessionRecoveryPassed": true,
     "realModelCalls": 0,
     "realPayPalCalls": 0
+  },
+  "latestCompletedLiveSuite": {
+    "runId": "2026-10-25T12-04-28-324Z",
+    "sourceCommit": "e6da3ff8e7cad83dd5db48a3e90d67bfe13730c0",
+    "cases": 20,
+    "automatedPassed": 16,
+    "medianLatencySeconds": 30.8,
+    "p95LatencySeconds": 90.0,
+    "result": "BLOCKED_OR_INCOMPLETE"
+  },
+  "postSuiteSourceChange": {
+    "emptyReviewedEvidenceFailsWithoutFurtherCitationCall": true,
+    "latestFinancialMessageCitationPrompt": true,
+    "requiresNewFullLiveSuite": true
+  },
+  "postSuiteTargetedRun": {
+    "runId": "2026-10-25T12-18-02-587Z",
+    "E05": "TIMEOUT_90005_MS",
+    "E10": "AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
+    "E10LatencyMs": 24956,
+    "completeSuite": false
   }
 }

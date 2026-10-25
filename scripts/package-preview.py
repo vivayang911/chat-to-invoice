@@ -21,24 +21,24 @@ stage.mkdir()
 files = [Path(x) for x in ['README.md', 'LICENSE', 'package.json', '.gitignore',
          'agnes-model.env.example', 'paypal-sandbox.env.example',
          'scripts/parse-model-json.mjs', 'scripts/parse-model-json.test.mjs',
-         'scripts/evaluate-app-model.mjs', 'scripts/package-preview.py',
+         'scripts/evaluate-app-model.mjs', 'scripts/compare-free-models.mjs', 'scripts/groq-model-check.mjs', 'scripts/run-groq-comparison.ps1', 'scripts/package-preview.py',
          'scripts/check-separate-confirmation.cjs', 'scripts/check-stability-ui.cjs', 'scripts/check-recovery-navigation.cjs', 'scripts/evaluate-chronology-probes.mjs',
          'scripts/check-expiry-uncertainty.cjs', 'scripts/check-buyer-link-navigation.cjs', 'scripts/check-itemized-statement.cjs', 'scripts/check-message-withdrawal.cjs',
          'scripts/check-acknowledgement-recovery.cjs',
          'scripts/check-statement-session.cjs', 'scripts/check-release-flow.cjs', 'scripts/browser-runtime.cjs',
          'docs/submission/ACCEPTANCE-AND-DELIVERY.md', 'docs/submission/RELEASE-STATUS.json',
-         'docs/submission/PROJECT.md', 'docs/submission/MANUAL-DEMO-RECORD.md', 'docs/submission/DEMO-SCRIPT.md',
+         'docs/submission/PROJECT.md', 'docs/submission/FREE-MODEL-COMPARISON.md', 'docs/submission/MANUAL-DEMO-RECORD.md', 'docs/submission/DEMO-SCRIPT.md',
          'docs/submission/USER-TRIAL.md', 'docs/submission/QUICKSTART.md']]
 files += [p.relative_to(root) for p in sorted((root / 'src').rglob('*')) if p.is_file()]
 
 # Compare against local credential values in memory. Never print values or include env files.
 credential_values = []
-for name in ['agnes-model.env', 'paypal-sandbox.env', 'ai-model.env']:
+for name in ['agnes-model.env', 'paypal-sandbox.env', 'ai-model.env', 'groq-model.env', 'gemini-model.env']:
     source = private / name
     if source.exists():
         for line in source.read_text(encoding='utf-8-sig').splitlines():
             key, sep, value = line.partition('=')
-            if sep and key.strip() in ['AGNES_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'ZHIPU_API_KEY']:
+            if sep and key.strip() in ['AGNES_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'ZHIPU_API_KEY', 'GROQ_API_KEY', 'GEMINI_API_KEY']:
                 value = value.strip().strip('"\'')
                 if len(value) >= 20 and not value.startswith('replace_'):
                     credential_values.append(value.encode())
@@ -70,7 +70,7 @@ with zipfile.ZipFile(archive) as z:
     z.extractall(validation)
 clean = validation / 'chat-to-invoice'
 environment = dict(os.environ)
-for key in ['AGNES_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'ZHIPU_API_KEY']:
+for key in ['AGNES_API_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET', 'ZHIPU_API_KEY', 'GROQ_API_KEY', 'GEMINI_API_KEY']:
     environment.pop(key, None)
 node = shutil.which('node')
 if not node:

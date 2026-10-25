@@ -8,7 +8,7 @@
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 91,
+  "localTestsPassed": 92,
   "failures": [
     {
       "id": "E05",
@@ -180,8 +180,103 @@
     "liveResultInitially": "REVIEW_REQUIRED",
     "evaluatorFalseNegative": "50字符文本 was not recognized by the text component regex",
     "sourceOutputHasRequiredTextFee": true,
-    "liveHistoricalRepairBranchExercised": false,
+    "liveHistoricalRepairBranchExercised": true,
     "originalResultPreserved": true,
-    "offlineRecheckOnly": true
-  }
+    "offlineRecheckOnly": true,
+    "branchProofRunId": "2026-10-25T12-37-30-553Z"
+  },
+  "freeModelComparison": {
+    "runId": "2026-10-25T12-37-30-553Z",
+    "cases": [
+      "E07",
+      "E11",
+      "E19",
+      "E20"
+    ],
+    "agnesAutomatedPasses": 4,
+    "agnesFirstResponseOnlyPasses": 1,
+    "agnesMedianSeconds": 56.0,
+    "glmResult": "RATE_LIMITED_ON_FIRST_CASE",
+    "glmOtherCasesSkipped": 3,
+    "productionModelChanged": false,
+    "geminiAndGroqTested": false,
+    "followUpGroqTested": true
+  },
+  "groqConnectivity": {
+    "keyLoaded": true,
+    "authenticationValidated": true,
+    "chatHttpStatus": 200,
+    "model": "qwen/qwen3.8-27b",
+    "expectedReplyMatched": true,
+    "latencyMs": 1101,
+    "initialDirectRouteHttpStatus": 403,
+    "resolvedBy": "EXISTING_SYSTEM_PROXY_FOR_CHILD_NODE_PROCESS",
+    "systemProxySettingsChanged": false,
+    "productionModelChanged": false
+  },
+  "groqComparison": {
+    "runId": "2026-10-25T13-39-38-772Z",
+    "E07": "AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
+    "E07LatencyMs": 1838,
+    "E07Requests": 2,
+    "E11": "HTTP_429_INCOMPLETE",
+    "E19": "SKIPPED_AFTER_RATE_LIMIT",
+    "E20": "SKIPPED_AFTER_RATE_LIMIT",
+    "exactQuotaCauseKnown": true,
+    "productionModelChanged": false,
+    "realPayPalCalls": 0,
+    "replacementValidated": false,
+    "quotaType": "TOKENS_PER_MINUTE",
+    "advertisedTokenLimit": 8000,
+    "pacedE11": {
+      "runId": "2026-10-25T13-49-15-501Z",
+      "status": "AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
+      "latencyMs": 20595,
+      "requests": 2
+    },
+    "remainingTargetedRun": {
+      "runId": "2026-10-25T13-49-43-705Z",
+      "E19": {
+        "status": "PASS_REVIEW_REQUIRED",
+        "amount": "12.00",
+        "latencyMs": 2320,
+        "requests": 1
+      },
+      "E20": {
+        "status": "PASS_REVIEW_REQUIRED",
+        "amount": "3900.00",
+        "latencyMs": 3347,
+        "requests": 2,
+        "initial429Recovered": true
+      }
+    },
+    "allFourHavePassingTargetedResults": true,
+    "completeCleanSuite": false
+  },
+  "groqFullSuite": {
+    "runId": "2026-10-25T13-52-59-791Z",
+    "model": "qwen/qwen3.8-27b",
+    "completeSuite": true,
+    "cases": 20,
+    "automatedPassed": 20,
+    "requests": 23,
+    "singleRequestCases": 17,
+    "medianLatencyMs": 17615.0,
+    "p95LatencyMs": 51792,
+    "maxLatencyMs": 59927,
+    "http429": 0,
+    "networkRetryCases": [
+      "E05"
+    ],
+    "referenceRepairCases": [
+      "E07",
+      "E11"
+    ],
+    "productionModelChanged": false,
+    "realPayPalCalls": 0,
+    "formalFreeze": false,
+    "result": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
+    "limitation": "One run per existing authored regression, not held-out accuracy. Latency includes quota waits. Production still uses Agnes; separate full application integration and payment acceptance remain outstanding."
+  },
+  "nextGate": "CONTROLLED_GROQ_APP_INTEGRATION_THEN_END_TO_END_ACCEPTANCE"
 }

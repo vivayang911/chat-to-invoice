@@ -87,3 +87,23 @@ test('price evidence cannot use a character count when a different number is exp
  for(const text of ['100USD','USD100','50usd','100美元'])assert.equal(hasExplicitUsd(text),true);
  for(const text of ['USDT100','100USDA','No currency specified'])assert.equal(hasExplicitUsd(text),false);
 });
+
+
+test('later quantities and repeated price sources require acceptance after their cited changes',()=>{
+ const messages=[{id:'M1',speaker:'seller',text:'Posters cost USD 50 each.'},{id:'M2',speaker:'buyer',text:'I accept one poster.'},{id:'M3',speaker:'seller',text:'Three posters at USD 50 each. Please confirm.'},{id:'M4',speaker:'buyer',text:'I accept three posters.'}];
+ const row={...item('B1','50.00',3,'PER_UNIT'),priceEvidence:['M1'],quantityEvidence:['M3'],acceptanceEvidence:['M2']};
+ assert.throws(()=>validateBillingItems([row],messages),/predates the cited quantity/);
+ assert.throws(()=>validateBillingItems([{...row,quantityEvidence:['M1'],priceEvidence:['M1','M3']}],messages),/predates the cited price/);
+ assert.equal(validateBillingItems([{...row,priceEvidence:['M1','M3'],acceptanceEvidence:['M4']}],messages)[0].quantity,3);
+ assert.equal(validateBillingItems([{...row,quantityEvidence:['M4'],acceptanceEvidence:['M4']}],messages)[0].quantity,3);
+ assert.equal(validateBillingItems([{...row,status:'PENDING'}],messages)[0].status,'PENDING');
+});
+
+
+test('generic acknowledgement cannot choose between differently priced alternatives',()=>{
+ const messages=[{id:'M1',speaker:'seller',text:'An edit is USD 25, or with music USD 40.'},{id:'M2',speaker:'buyer',text:'Okay.'}];
+ const row={...item('B1','25.00'),priceEvidence:['M1'],quantityEvidence:['M1'],acceptanceEvidence:['M2']};
+ assert.throws(()=>validateBillingItems([row],messages),/ambiguous acknowledgement/);
+ assert.equal(validateBillingItems([row],[{...messages[0],text:'An edit is USD 25.'},messages[1]])[0].status,'ACCEPTED');
+ assert.equal(validateBillingItems([row],[messages[0],{...messages[1],text:'I choose the USD 25 edit.'}])[0].status,'ACCEPTED');
+});

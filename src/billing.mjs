@@ -59,11 +59,19 @@ export function validateBillingItems(items,messages){
    if(!matchingPriceIds.length)fail('quoted unit price is not present in its cited source');
   }
   if(item.status==='ACCEPTED'&&(!item.acceptanceEvidence.length||!item.acceptanceEvidence.every(id=>messages.find(m=>m.id===id).speaker==='buyer')))fail('accepted item needs buyer evidence');
+  if(item.status==='ACCEPTED'&&item.acceptanceEvidence.every(id=>{
+   const index=messages.findIndex(m=>m.id===id),reply=messages[index],quote=messages[index-1];
+   return /^(?:okay|ok|yes|agreed|sure|好的|好|可以|同意)[.!。！\s]*$/i.test(reply.text.trim())&&quote?.speaker==='seller'&&/(?:\bor\b|或者|还是|任选)/i.test(quote.text)&&new Set(quotedPriceAmounts(quote.text)).size>1;
+  }))fail('ambiguous acknowledgement does not select a priced option');
   if(item.status==='ACCEPTED'&&item.unitAmount!==null&&!item.acceptanceEvidence.some(id=>{
    const accepted=messages.findIndex(m=>m.id===id&&m.speaker==='buyer');
-   return accepted>=0&&matchingPriceIds.some(source=>messages.findIndex(m=>m.id===source)<=accepted);
+   return accepted>=0&&matchingPriceIds.every(source=>messages.findIndex(m=>m.id===source)<=accepted);
   }))fail('buyer acceptance predates the cited price');
   if(item.status==='ACCEPTED'&&item.quantity!==null&&!item.quantityEvidence.length)fail('quantity needs evidence');
+  if(item.status==='ACCEPTED'&&item.quantity!==null&&item.quantityEvidence.length&&!item.acceptanceEvidence.some(id=>{
+   const accepted=messages.findIndex(m=>m.id===id);
+   return item.quantityEvidence.every(source=>messages.findIndex(m=>m.id===source)<=accepted);
+  }))fail('buyer acceptance predates the cited quantity');
   if(item.priceBasis==='ONE_OFF'&&item.quantity!==null&&item.quantity!==1)fail('a one-off fee must have quantity one');
   return {id:item.id,description:item.description.trim(),status:item.status,quantity:item.quantity,unitAmount:item.unitAmount,priceBasis:item.priceBasis,priceEvidence:[...new Set(item.priceEvidence)],quantityEvidence:[...new Set(item.quantityEvidence)],acceptanceEvidence:[...new Set(item.acceptanceEvidence)]};
  });

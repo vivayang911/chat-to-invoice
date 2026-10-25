@@ -3,6 +3,9 @@ import {acknowledgeStatement} from './statement-recovery.mjs';
 import {statementExpired} from './statement-state.mjs';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.hash.slice(1));
 const id=params.get('id'),token=params.get('token');let statement=null,busy=false;
+// Fragment navigation does not reload a document. Never keep another link's
+// statement or review consent visible after its capability changes.
+addEventListener('hashchange',()=>{statement=null;busy=true;$('customerReview').checked=false;$('customerStatement').hidden=true;refresh();location.reload();});
 async function call(action,extra={}){const r=await fetch('/api/statements/'+action,{signal:AbortSignal.timeout(15000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,token,...extra})});const data=await r.json();if(!r.ok)throw Error(data.error||'Statement request failed.');return data.statement;}
 function active(){return statement&&!statementExpired(statement)&&!['REVOKED','CHANGES_REQUESTED'].includes(statement.status);}
 function refresh(){const blocked=busy||!active()||Boolean(statement?.buyerConfirmedAt);$('customerConfirm').disabled=blocked||!$('customerReview').checked;$('requestChange').disabled=busy||!active();$('reloadStatement').disabled=busy;}

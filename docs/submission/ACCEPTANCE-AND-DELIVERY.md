@@ -88,3 +88,23 @@ Official rules rechecked on October 24, 2026: https://paypalaihackathon.devpost.
 | Judge access, correct submission fields and public URL verification | Outstanding |
 
 The archive is a review deliverable, not evidence of passing all acceptance criteria or completing submission. Original Chinese working notes and private diagnostic responses remain in the development workspace; only current English submission documents are selected for this archive. No real-user trial has been conducted.
+
+
+### October 25 chronology validation follow-up
+
+Accepted quantities now require buyer acceptance at or after all cited quantity sources. Repeated matching price citations also require acceptance after all matching sources; an older matching quote cannot mask a later quotation. Regression coverage includes stale acceptance, later acceptance, same-message quantity acceptance, and non-billable pending rows. All 72 local tests pass. Source scan and isolated browser release flow pass (zero live model or PayPal calls). This does not establish semantic accuracy or complete live release acceptance.
+
+
+### October 25 full acceptance attempt
+
+All 75 local tests pass. Five isolated browser suites pass; release-flow and stability suites were repeated after the fixes. A complete 18-case live run at 2026-10-25T02:45:32Z produced 7 automated passes, 9 HTTP 429 failures (E09–E17), one source chronology rejection (E05), and one incorrect invoiceable interpretation (E18). This is a failed release gate, not an accuracy estimate.
+
+E18 generic acknowledgement after multiple differently priced alternatives now fails closed. Replay of the saved incorrect output is blocked even after one simulated correction attempt. A single existing bounded source review now handles invalid chronological citations, without removing the final validation. These post-run fixes pass local regressions but have not completed another live suite. No new PayPal invoice, send, or payment was requested. Formal freeze remains blocked.
+
+
+### Buyer link navigation regression
+
+Browser simulation reproduced a stale statement when only the confirmation URL fragment changed. The confirmation page now clears actionable state and reloads on fragment navigation. The new check-buyer-link-navigation.cjs verifies switching links, browser back, fresh review consent, invalid-link blocking, and text-only rendering of HTML-like descriptions. It failed before the fix and passes after it. Invoice navigation, lost acknowledgements, invoice uncertainty recovery, expiry checks and isolated release flow also pass. All 75 unit tests pass. No real model or PayPal calls were made during this follow-up; the live release gate remains incomplete.
+
+
+Targeted live follow-up (2026-10-25T02:52:32Z): E05 passes all automated checks after the source-review fix; E18 returns HTTP 429. This two-case probe is incomplete and does not replace the full release gate. No PayPal calls.

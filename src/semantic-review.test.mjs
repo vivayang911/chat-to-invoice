@@ -35,3 +35,21 @@ test('a model-confirmed amount cannot bypass an unsupported final customer total
  const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic-key';
  try{globalThis.fetch=async()=>({ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(raw)}}]})});const result=await analyze(messages);assert.equal(result.amount,null);assert.equal(result.calculation.canInvoice,false);assert.ok(result.safetyCorrections.includes('UNRESOLVED_EXPLICIT_TOTAL'));assert.ok(result.evidence.some(e=>e.field==='pendingIssues'&&e.quote===messages[1].text));}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
 });
+
+
+test('a model choosing an option from generic okay is reviewed once and cannot bypass rejection',async()=>{
+ const messages=parseChat('seller: An edit is USD 25, or with music USD 40.\nbuyer: Okay.');
+ const raw={agreementStatus:'CONFIRMED',amount:'25.00',currency:'USD',service:'Edit',pendingIssues:[],billingItems:[{id:'B1',description:'Edit',status:'ACCEPTED',quantity:1,unitAmount:'25.00',priceBasis:'ONE_OFF',priceEvidence:['M1'],quantityEvidence:['M1'],acceptanceEvidence:['M2']}],evidence:['agreementStatus','amount','currency','service'].map(field=>({field,messageId:field==='agreementStatus'?'M2':'M1'}))};
+ const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic-key';let calls=0;
+ try{globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(raw)}}]})};};await assert.rejects(analyze(messages),/ambiguous acknowledgement/);assert.equal(calls,2);}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
+});
+
+
+test('later seller recaps trigger bounded source review without being treated as buyer approval',async()=>{
+ const {readFile}=await import('node:fs/promises');const f=JSON.parse(await readFile(new URL('./fixtures/E01.json',import.meta.url),'utf8'));
+ const messages=[...f.messages,{id:'M3',speaker:'seller',text:'Confirmed, one logo for USD 100 with two revision rounds.'}];
+ const raw={...f.billingResult,billingItems:f.billingResult.billingItems.map(i=>({...i,priceEvidence:['M1','M3'],quantityEvidence:['M3'],acceptanceEvidence:['M2','M3']}))};
+ const corrected={...f.billingResult,evidence:[...f.billingResult.evidence,{field:'service',messageId:'M3',quote:messages[2].text}]};
+ const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic-key';let calls=0;
+ try{globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?raw:corrected)}}]})};};const result=await analyze(messages);assert.equal(result.amount,'100.00');assert.equal(result.requestDiagnostics.semanticReviewRequested,true);assert.equal(calls,2);}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
+});

@@ -8,7 +8,7 @@
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 79,
+  "localTestsPassed": 87,
   "failures": [
     {
       "id": "E03",
@@ -76,5 +76,74 @@
     "unsupportedUnitPriceRejectedBeforeCreation": true,
     "isolatedItemizedFlowPassed": true,
     "livePayPalCalls": 0
+  },
+  "currentSuiteCases": 20,
+  "currentSuiteComplete": false,
+  "selectedTextFeeFollowUp": {
+    "sameModelRetained": true,
+    "promptUpdated": true,
+    "observedCupReplayBlocked": true,
+    "liveRunId": "2026-10-25T03-25-06-005Z",
+    "liveResult": "EXTRACTION_FAILED_BLOCKED_BY_COVERAGE_GUARD",
+    "liveCorrectTotalVerified": false,
+    "scope": "Narrow short-text tier coverage guard; not a complete semantic completeness guarantee."
+  },
+  "modelArithmeticFollowUp": {
+    "boundedSourceReviewForInternalTotalMismatch": true,
+    "persistentMismatchBlocks": true,
+    "uiShowsComparedTotals": true,
+    "localRegressionPassed": true,
+    "liveBulkCupRerun": "BLOCKED_MODEL_TOTAL_MISMATCH",
+    "liveAttempts": [
+      {
+        "attempt": 1,
+        "result": "REJECTED_MISSING_BUYER_EVIDENCE"
+      },
+      {
+        "attempt": 2,
+        "result": "BLOCKED_MODEL_TOTAL_MISMATCH",
+        "latencySeconds": 43.8,
+        "acceptedSubtotal": "3900.00"
+      }
+    ]
+  },
+  "arithmeticAuthority": "PROGRAM_INTEGER_CENTS",
+  "bulkCupRootCause": {
+    "capturedModelTotal": "4400.00",
+    "sourceLineSubtotal": "3900.00",
+    "diagnosticRun": "2026-10-25T11-24-13-889Z",
+    "diagnosticRunOutcome": "TIMED_OUT_DURING_CORRECTION",
+    "postFixRun": "2026-10-25T11-26-38-294Z",
+    "postFixResult": "E20_AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
+    "postFixAmount": "3900.00",
+    "postFixModelAmount": null,
+    "postFixLatencyMs": 29875,
+    "postFixBrowserRerun": "REJECTED_MISSING_BUYER_EVIDENCE",
+    "scenarioStable": false
+  },
+  "acceptanceReferenceFollowUp": {
+    "repair": "Strict item-ID to original buyer-ID mapping only",
+    "finalValidationRetained": true,
+    "modelCannotRewriteBillingFacts": true,
+    "liveE20Run": "2026-10-25T11-32-37-776Z",
+    "liveE20Result": "AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED",
+    "latencyMs": 10143,
+    "liveRepairBranchExercised": false,
+    "browserRerun": {
+      "status": "PASSED_ANALYSIS_REVIEW_REQUIRED",
+      "reportedLatencySeconds": 8.0,
+      "amount": "3900.00",
+      "baseBuyerSource": "M6",
+      "logoBuyerSource": "M10",
+      "acceptanceEvidenceVisuallyVerified": true
+    }
+  },
+  "confirmationPersistenceFollowUp": {
+    "auditAndBuyerSourcesSurviveRestart": true,
+    "buyerChangesStillRevoke": true,
+    "isolatedItemizedFlowPassed": true,
+    "sessionRecoveryPassed": true,
+    "realModelCalls": 0,
+    "realPayPalCalls": 0
   }
 }

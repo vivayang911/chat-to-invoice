@@ -53,3 +53,17 @@ test('later seller recaps trigger bounded source review without being treated as
  const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic-key';let calls=0;
  try{globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?raw:corrected)}}]})};};const result=await analyze(messages);assert.equal(result.amount,'100.00');assert.equal(result.requestDiagnostics.semanticReviewRequested,true);assert.equal(calls,2);}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
 });
+
+
+test('model-only arithmetic is computed by the program while original total stays auditable',async()=>{
+ const {readFile}=await import('node:fs/promises');const f=JSON.parse(await readFile(new URL('./fixtures/E01.json',import.meta.url),'utf8'));
+ const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic';
+ try{for(const fixed of [true,false]){let calls=0;globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify({...f.billingResult,amount:calls===2&&fixed?'100.00':'101.00'})}}]})};};const r=await analyze(f.messages);assert.equal(calls,1);assert.equal(r.amount,'100.00');assert.equal(r.calculation.canInvoice,true);assert.equal(r.modelReportedAmount,'101.00');assert.equal(r.calculation.arithmeticCorrection.originalModelTotal,'101.00');}}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
+});
+
+
+test('missing buyer approval sources trigger one review and cannot be invented by the server',async()=>{
+ const {readFile}=await import('node:fs/promises');const f=JSON.parse(await readFile(new URL('./fixtures/E01.json',import.meta.url),'utf8'));const bad={...f.billingResult,billingItems:f.billingResult.billingItems.map(i=>({...i,acceptanceEvidence:['M1']}))};
+ const savedFetch=globalThis.fetch,savedKey=process.env.AGNES_API_KEY;process.env.AGNES_API_KEY='synthetic';
+ try{for(const corrected of [true,false]){let calls=0;globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?bad:{acceptanceEvidence:{B1:corrected?['M2']:['M1']}})}}]})};};if(corrected)assert.equal((await analyze(f.messages)).amount,'100.00');else await assert.rejects(analyze(f.messages),/establish buyer acceptance/);assert.equal(calls,2);}}finally{globalThis.fetch=savedFetch;if(savedKey===undefined)delete process.env.AGNES_API_KEY;else process.env.AGNES_API_KEY=savedKey;}
+});

@@ -4,4 +4,5 @@ const zhBase='seller: 我可以设计一个 Logo，价格为 100 USD，包含两
 const zh={E01:zhBase,E02:zhBase+'\nbuyer: 还能再加一张海报吗？',E03:'seller: 设计一个 Logo 的价格是 100 USD。\nbuyer: 我接受 100 USD 的报价。\nseller: 更正：我无法按 100 USD 提供服务，撤回原报价。新报价是 150 USD，请你确认。',E04:'seller: 一个 Logo 包含两轮修改，报价 150 USD。\nbuyer: 相同范围能按 120 USD 做吗？\nseller: 可以，120 USD，包含一个 Logo 和两轮修改。\nbuyer: 我接受 120 USD 和上述范围。',E05:zhBase+'\nbuyer: 还能再加一张海报吗？\nseller: 海报需要另外加收 50 USD。\nbuyer: 海报不要了，只保留原来谈好的 100 USD 的 Logo。\nseller: 好的，仅设计一个 Logo，包含两轮修改，总价 100 USD。',E06:'seller: 一个 Logo 是 100 USD，Logo 加海报套餐是 150 USD。\nbuyer: 听起来不错，我再考虑一下。'};
 zh.E11="seller: 我可以设计一个 Logo，价格为 100 USD，包含两轮修改。\nbuyer: 我接受 100 USD，设计一个 Logo，包含两轮修改。\nbuyer: 还能再加一张海报吗？\nseller: 加一张需要50USD\nbuyer: 好的，再加50个文字呢\nseller: 需要增加60USD\nbuyer: 好的，那我要三份海报";
 samples.E11="seller: I can design one logo for USD 100, including two revision rounds.\nbuyer: I accept USD 100 for one logo with two revision rounds.\nbuyer: Could you also add one poster?\nseller: One poster adds USD 50.\nbuyer: Okay. What about adding 50 characters?\nseller: That adds USD 60.\nbuyer: Okay, then I want three posters.";
+samples.EMPTY='';zh.EMPTY='';
 export const sampleSets={en:samples,zh};

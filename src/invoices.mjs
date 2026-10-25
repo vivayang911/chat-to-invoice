@@ -6,7 +6,9 @@ export function validateDraft(data,analysis){
  if(!analysis||analysis.agreementStatus!=='CONFIRMED'||analysis.currency!=='USD')throw Error('Invoice: analyze a confirmed USD agreement first.');
  if(data.reviewed!==true||!Array.isArray(analysis.pendingIssues)||analysis.pendingIssues.length)throw Error('Invoice: clarify open issues in the conversation and analyze again before invoicing.');
  if(!Array.isArray(analysis.billingItems)||analysis.calculation?.version!==1)throw Error('Invoice: itemized pricing is required. Analyze again.');
- const verified=calculateBilling(analysis.billingItems,{currency:analysis.currency,agreementStatus:analysis.modelAgreementStatus,modelReportedAmount:analysis.modelReportedAmount,pendingIssues:analysis.pendingIssues,explicitTotal:analysis.explicitTotal??null});
+ const correction=analysis.calculation?.arithmeticCorrection;
+ if(correction&&(correction.method!=='INTEGER_CENTS'||correction.originalModelTotal!==analysis.modelReportedAmount||correction.programTotal!==analysis.amount))throw Error('Invoice: invalid arithmetic audit.');
+ const verified=calculateBilling(analysis.billingItems,{currency:analysis.currency,agreementStatus:analysis.modelAgreementStatus,modelReportedAmount:correction?null:analysis.modelReportedAmount,pendingIssues:analysis.pendingIssues,explicitTotal:analysis.explicitTotal??null});
  if(!verified.canInvoice||verified.amount!==analysis.amount||data.amount!==verified.amount||data.service!==verified.service)throw Error('Invoice: the draft does not match the independently calculated items.');
  if(analysis.billingItems.some(item=>item.status==='ACCEPTED'&&toCents(item.unitAmount)>100000000n))throw Error('Invoice: a unit price exceeds the PayPal invoice limit of USD 1,000,000.');
  const requiredIds=analysis.billingItems.filter(i=>i.status==='ACCEPTED').map(i=>i.id);

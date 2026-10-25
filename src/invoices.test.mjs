@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {randomUUID} from 'node:crypto';
 import {createInvoiceStore,validateDraft,invoiceBody,verifyInvoice} from './invoices.mjs';
-import {calculateBilling} from './billing.mjs';
+import {calculateBilling,attachBilling} from './billing.mjs';
 const billingItems=[{id:'B1',description:'One logo, two revisions',status:'ACCEPTED',unitAmount:'100.00',quantity:1,priceBasis:'ONE_OFF',priceEvidence:['M1'],quantityEvidence:['M2'],acceptanceEvidence:['M2']}];
 const calculation=calculateBilling(billingItems,{currency:'USD',agreementStatus:'CONFIRMED',modelReportedAmount:'100.00'});
 const analysis={agreementStatus:'CONFIRMED',modelAgreementStatus:'CONFIRMED',modelReportedAmount:'100.00',currency:'USD',amount:'100.00',service:calculation.service,pendingIssues:[],billingItems,calculation};
@@ -87,4 +87,14 @@ test('unsupported PayPal unit price is rejected before saving or issuing a creat
  const a={...analysis,billingItems:rows,calculation:c,amount:c.amount,service:c.service,modelReportedAmount:c.amount},d={...draft,amount:c.amount,service:c.service};
  const dir=await mkdtemp(join(tmpdir(),'invoice-limit-'));let requests=0;
  try{const store=createInvoiceStore({directory:pathToFileURL(dir+'/'),api:async()=>{requests++;}}),id=randomUUID();await assert.rejects(store.create(id,d,a),/unit price exceeds/);assert.equal(requests,0);assert.equal(await store.canRetryCreation(id),true);}finally{await rm(dir,{recursive:true,force:true});}
+});
+
+
+test('audited program arithmetic survives invoice validation, but customer totals and open issues still block',()=>{
+ const rows=[{...billingItems[0],id:'B1',description:'Steel cups',quantity:500,unitAmount:'5.00',priceBasis:'PER_UNIT',priceEvidence:['M1'],quantityEvidence:['M2'],acceptanceEvidence:['M2']},{...billingItems[0],id:'B2',description:'Ceramic cups',quantity:100,unitAmount:'8.00',priceBasis:'PER_UNIT',priceEvidence:['M1'],quantityEvidence:['M2'],acceptanceEvidence:['M2']},{...billingItems[0],id:'B3',description:'Logo on every cup',quantity:600,unitAmount:'1.00',priceBasis:'PER_UNIT',priceEvidence:['M1'],quantityEvidence:['M2'],acceptanceEvidence:['M2']}];
+ const messages=[{id:'M1',speaker:'seller',text:'Steel USD 5, ceramic USD 8, logo USD 1 each.'},{id:'M2',speaker:'buyer',text:'I accept 500 steel, 100 ceramic, with logos on all 600 cups.'}];
+ const raw={agreementStatus:'CONFIRMED',amount:'4400.00',currency:'USD',pendingIssues:[]};const a=attachBilling(raw,rows,messages);assert.equal(a.amount,'3900.00');assert.equal(a.modelReportedAmount,'4400.00');assert.equal(a.calculation.arithmeticCorrection.programTotal,'3900.00');const d={...draft,service:a.service,amount:a.amount,reviewedItemIds:['B1','B2','B3']};assert.equal(validateDraft(d,a).amount,'3900.00');
+ const conflict=attachBilling({...raw,explicitTotal:'4400.00'},rows,messages);assert.equal(conflict.amount,null);assert.ok(conflict.calculation.blockers.includes('EXPLICIT_TOTAL_MISMATCH'));assert.equal(conflict.calculation.arithmeticCorrection,undefined);
+ const open=attachBilling({...raw,pendingIssues:['Delivery not settled']},rows,messages);assert.equal(open.amount,null);assert.equal(open.calculation.arithmeticCorrection,undefined);
+ assert.throws(()=>validateDraft(d,{...a,calculation:{...a.calculation,arithmeticCorrection:{...a.calculation.arithmeticCorrection,programTotal:'4400.00'}}}),/audit/);
 });

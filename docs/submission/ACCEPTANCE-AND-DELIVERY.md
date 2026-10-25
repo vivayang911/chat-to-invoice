@@ -134,3 +134,34 @@ API reference: https://developer.paypal.com/invoicing/object/ (items name, descr
 ### Invoice boundary follow-up
 
 79 local tests pass. Remote invoice verification now rejects nonzero tax/discount/shipping/other breakdown adjustments even when they offset and preserve the total. Ordinary zero-valued provider adjustment fields remain accepted. Unit prices above the PayPal USD 1,000,000 item limit are rejected before persisting a creation attempt or issuing any PayPal request. Added regressions prove zero requests and safe correction after this validation error. Isolated itemized release flow and uncertain-send/expiry browser tests pass. No live model or PayPal calls during this follow-up.
+
+
+### Selected inscription fee omission (user-observed cup scenario)
+
+Model unchanged. Prompt now separates alternative product prices from additive fees, retains independently priced inscription, and copies all selected components when an identical configured item is ordered. A narrow deterministic coverage guard detects an explicitly selected short-text tier whose separately quoted price is absent from accepted text rows. This guard triggers at most the existing single source re-extraction; repeating the omission fails closed. It never invents fees, changes acceptance or sets a guessed total. It may conservatively block ambiguous packages and is not a general completeness proof.
+
+81 local tests pass, including replay of the observed USD 10 omission, recovery to three separately sourced rows totaling USD 12, persistent-omission rejection and a changed tier price. The 19th evaluation case preserves the original user-operated Chinese cup conversation. Real-model E19 probe at 2026-10-25T03:25:06Z still omitted components; the updated guard rejected it. Correct live extraction to USD 12 has NOT been demonstrated. Existing isolated itemized browser flow passes. Hard-coded logo labels were replaced with neutral custom-order labels. No PayPal calls.
+
+
+### Bulk-cup arithmetic repair and live rerun
+
+Internal arithmetic mismatch and missing buyer evidence now enter the existing single bounded source review. A persistent disagreement still blocks invoicing. The client exposes model total versus independent subtotal and replaces the misleading no-issues text with the discrepancy. 83 local tests pass; isolated itemized and withdrawal flows pass. Two real browser reruns of the unmodified user scenario failed: missing buyer evidence first, then persistent model-total mismatch with correct USD 3900 component subtotal (43.8 seconds). This remains unresolved live acceptance; no payment requested. See MANUAL-DEMO-RECORD.md.
+
+
+### Root cause established and arithmetic authority corrected
+
+Captured raw response in diagnostic run 2026-10-25T11:24:13Z: valid lines USD 2500, 800, 600 but model amount string "4400.00". The old source-retry path timed out after 90 seconds. This was model arithmetic, not formatting. The prompt now requires amount=null and the program alone computes payment totals from validated line inputs. Legacy model-only total discrepancies are recalculated only if MODEL_TOTAL_MISMATCH is the sole blocker; original model amount remains in modelReportedAmount and an INTEGER_CENTS arithmeticCorrection audit is recorded. Any pending issue, unresolved item, missing acceptance, or explicitly accepted customer-total conflict still blocks. Financial draft validation independently recalculates and verifies the correction audit; no client override is accepted.
+
+This supersedes the earlier policy of blocking an otherwise valid ledger solely because the model added it incorrectly. It does not relax semantic coverage or customer-total checks. 84 local tests pass, including captured 4400 versus 3900, audit validation, open-issue and explicit-customer-total blocking. Real E20 run 2026-10-25T11:26:38Z passes all scenario checks at USD 3900 in 29.875 seconds with model amount=null. This is a single-case pass, not a complete 20-case release gate. No PayPal calls.
+
+
+### Acceptance-reference extraction repair
+
+Missing buyer references now use a separate constrained ID-only selection step after validating every other row field. The only accepted response shape is acceptanceEvidence keyed by exactly the affected item IDs; values must be original buyer IDs drawn from chronology-qualified candidate messages. Candidates are not presumed accepted: the model must verify the full source context, and the original final validator still rejects ambiguous alternatives, wrong roles, unknown IDs and acceptance before price/quantity. Conditional and cancelled replies are excluded from candidates. No description, quantity, price or status can be returned or changed by this repair. Pending items are never promoted.
+
+86 local tests pass, covering successful reference-only repair and adversarial or unsupported responses. Real E20 run 2026-10-25T11:32:37Z passes at USD 3900 in 10.143 seconds: base variants cite buyer M6; logo cites buyer M10. The live initial response was already correct and did not exercise the repair branch; that branch is verified locally, not claimed as a live-provider success. Isolated itemized browser flow passes. No PayPal requests.
+
+
+### Confirmation persistence acceptance
+
+87 local tests pass. A persisted two-party statement retains both the original model arithmetic value, its program correction audit and item-level buyer references across store restart. The restored statement authorizes only its exact confirmed amount, and a subsequent buyer correction still blocks it. Isolated itemized browser acceptance and session/network-recovery checks pass. No real model or PayPal calls during this follow-up. The English user-operated demonstration record is now included in the source package; full 20-case live gate and latest-format Sandbox acceptance remain pending.

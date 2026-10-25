@@ -105,6 +105,12 @@ export function calculateBilling(items,{currency,agreementStatus,modelReportedAm
 }
 export function attachBilling(result,rawItems,messages){
  const billingItems=validateBillingItems(rawItems,messages);
- const calculation=calculateBilling(billingItems,{currency:result.currency,agreementStatus:result.agreementStatus,modelReportedAmount:result.amount,pendingIssues:result.pendingIssues,explicitTotal:result.explicitTotal??null});
+ let calculation=calculateBilling(billingItems,{currency:result.currency,agreementStatus:result.agreementStatus,modelReportedAmount:result.amount,pendingIssues:result.pendingIssues,explicitTotal:result.explicitTotal??null});
+ // Only a model-only arithmetic discrepancy may be corrected. Any source,
+ // acceptance, pending-item or customer-total conflict remains a blocker.
+ if(calculation.blockers.length===1&&calculation.blockers[0]==='MODEL_TOTAL_MISMATCH'){
+  const originalModelTotal=result.amount;calculation=calculateBilling(billingItems,{currency:result.currency,agreementStatus:result.agreementStatus,modelReportedAmount:null,pendingIssues:result.pendingIssues,explicitTotal:result.explicitTotal??null});
+  calculation.arithmeticCorrection={originalModelTotal,programTotal:calculation.amount,method:'INTEGER_CENTS'};
+ }
  return {...result,modelReportedAmount:result.amount,modelAgreementStatus:result.agreementStatus,billingItems,calculation,amount:calculation.amount,agreementStatus:calculation.canInvoice?'CONFIRMED':'NEEDS_CONFIRMATION',service:calculation.service};
 }

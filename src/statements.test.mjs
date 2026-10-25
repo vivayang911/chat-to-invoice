@@ -1,3 +1,4 @@
+import {attachBilling} from './billing.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtemp,readFile,rm} from 'node:fs/promises';import {tmpdir} from 'node:os';import {pathToFileURL} from 'node:url';import path from 'node:path';import {randomUUID} from 'node:crypto';import {createStatementStore} from './statements.mjs';
 const fixture=JSON.parse(await readFile(new URL('./fixtures/E01.json',import.meta.url),'utf8'));
 const analysis=fixture.billingResult;
@@ -13,4 +14,16 @@ test('invoice operation holds the same lock as confirmation mutations and always
  const store=createStatementStore({directory}),id=randomUUID(),a=await store.create(id,draft,analysis);let release;const held=store.withInvoiceLock(id,()=>new Promise(resolve=>{release=resolve;}));
  await assert.rejects(store.act(id,a.buyerToken,{action:'requestChanges',fingerprint:a.statement.fingerprint,feedback:'Change quantity.'}),/another update/);await assert.rejects(store.create(id,draft,analysis),/another update/);assert.equal((await store.status(id,a.buyerToken)).status,'AWAITING_CONFIRMATION');release();await held;
  await assert.rejects(store.withInvoiceLock(id,async()=>{throw Error('Simulated lost response');}),/lost response/);const changed=await store.act(id,a.buyerToken,{action:'requestChanges',fingerprint:a.statement.fingerprint,feedback:'Change quantity.'});assert.equal(changed.status,'CHANGES_REQUESTED');
+}));
+
+
+test('program arithmetic audit and buyer references survive shared confirmation and restart',()=>setup(async directory=>{
+ const checked=attachBilling({...analysis,amount:'101.00'},analysis.billingItems,fixture.messages);assert.equal(checked.amount,'100.00');assert.equal(checked.modelReportedAmount,'101.00');
+ const data={...draft,service:checked.service,amount:checked.amount},id=randomUUID(),store=createStatementStore({directory});const shared=await store.create(id,data,checked);
+ await store.act(id,shared.sellerToken,{action:'confirm',fingerprint:shared.statement.fingerprint});await store.act(id,shared.buyerToken,{action:'confirm',fingerprint:shared.statement.fingerprint});
+ const restarted=createStatementStore({directory}),verified=await restarted.verifyInvoice(id,shared.sellerToken,data);
+ assert.equal(verified.analysis.modelReportedAmount,'101.00');assert.deepEqual(verified.analysis.calculation.arithmeticCorrection,{originalModelTotal:'101.00',programTotal:'100.00',method:'INTEGER_CENTS'});
+ assert.deepEqual(verified.analysis.billingItems[0].acceptanceEvidence,checked.billingItems[0].acceptanceEvidence);
+ await restarted.verifySavedInvoice({draft:data,statementConfirmation:verified.confirmation});await assert.rejects(restarted.verifyInvoice(id,shared.sellerToken,{...data,amount:'101.00'}),/differs/);
+ await restarted.act(id,shared.buyerToken,{action:'requestChanges',fingerprint:shared.statement.fingerprint,feedback:'Change the quantity.'});await assert.rejects(restarted.verifyInvoice(id,shared.sellerToken,data),/withdrawn/);
 }));

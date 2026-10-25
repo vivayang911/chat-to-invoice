@@ -13,7 +13,7 @@ const origin=`http://127.0.0.1:${port}`;
 let busy=false;
 const assets={'/':['index.html','text/html; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/style.css':['style.css','text/css; charset=utf-8'],'/buyer-avatar.svg':['buyer-avatar.svg','image/svg+xml'],'/seller-avatar.svg':['seller-avatar.svg','image/svg+xml']};
 assets['/confirm']=['confirm.html','text/html; charset=utf-8'];assets['/confirm.js']=['confirm.js','text/javascript; charset=utf-8'];
-for(const name of ['ui-language.mjs','ui-strings.mjs','samples.mjs','statement-state.mjs','statement-recovery.mjs'])assets['/'+name]=[name,'text/javascript; charset=utf-8'];
+for(const name of ['ui-language.mjs','ui-strings.mjs','samples.mjs','statement-state.mjs','statement-recovery.mjs','fee-table.mjs'])assets['/'+name]=[name,'text/javascript; charset=utf-8'];
 const server=http.createServer(async(req,res)=>{
   res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");

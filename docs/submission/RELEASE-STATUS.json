@@ -8,7 +8,7 @@
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 75,
+  "localTestsPassed": 79,
   "failures": [
     {
       "id": "E03",
@@ -40,7 +40,7 @@
     "Generic acknowledgement after differently priced alternatives cannot authorize a selected option.",
     "One bounded source review for invalid price/quantity chronology; all normal source checks remain mandatory."
   ],
-  "postFixLiveSuiteCompleted": true,
+  "postFixLiveSuiteCompleted": false,
   "savedFailureReplay": "E18 blocked after correction remained ambiguous; two simulated responses, no real calls.",
   "buyerNavigationFollowUp": {
     "date": "2026-10-25",
@@ -57,5 +57,24 @@
     "completeSuite": false,
     "releaseGate": "BLOCKED_OR_INCOMPLETE"
   },
-  "evaluationPauseMs": 3000
+  "evaluationPauseMs": 3000,
+  "postRunItemizedStatementChange": {
+    "requiresNewLiveGate": true,
+    "browserRegressionPassed": true,
+    "realModelCalls": 0,
+    "realPayPalCalls": 0
+  },
+  "paypalItemization": {
+    "formatVersion": 2,
+    "acceptedRowsMappedIndividually": true,
+    "perLineRemoteVerification": true,
+    "simulatedBrowserFlowPassed": true,
+    "livePayPalVerified": false
+  },
+  "invoiceBoundaryFollowUp": {
+    "offsettingAdjustmentsBlocked": true,
+    "unsupportedUnitPriceRejectedBeforeCreation": true,
+    "isolatedItemizedFlowPassed": true,
+    "livePayPalCalls": 0
+  }
 }

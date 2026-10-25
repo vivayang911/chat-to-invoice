@@ -54,3 +54,37 @@ test('status exposes withdrawn confirmation and send remains blocked without any
 test('checking resolved cannot override unresolved model issues at the financial boundary',()=>{
  assert.throws(()=>validateDraft({...draft,resolved:true},{...analysis,pendingIssues:['Extra poster not agreed.']}),/clarify open issues/);
 });
+
+
+test('PayPal itemization preserves scope, revisions, quantities and one-off extras; rejects equal-total tampering',()=>{
+ const rows=[{...billingItems[0]},{...billingItems[0],id:'B2',description:'Three added posters',unitAmount:'50.00',quantity:3,priceBasis:'PER_UNIT'},{...billingItems[0],id:'B3',description:'Added text package, one-off fee',unitAmount:'60.00'}];
+ const c=calculateBilling(rows,{currency:'USD',agreementStatus:'CONFIRMED',modelReportedAmount:'310.00'});
+ const record={invoiceFormatVersion:2,billingItems:rows,invoiceNumber:'CHAT-ITEMS',invoiceId:'INV2-ITEMS',draft:{...draft,service:c.service,amount:'310.00'}};
+ const body=invoiceBody(record);assert.equal(body.items.length,3);assert.equal(body.items[0].description,'One logo, two revisions');assert.equal(body.items[1].quantity,'3');assert.equal(body.items[1].unit_amount.value,'50.00');assert.equal(body.items[2].quantity,'1');
+ const remote={...structuredClone(body),id:record.invoiceId,amount:{currency_code:'USD',value:'310.00'}};assert.doesNotThrow(()=>verifyInvoice(remote,record));
+ for(const modify of [r=>{r.items[0].unit_amount.value='110.00';r.items[2].unit_amount.value='50.00';},r=>r.items.pop(),r=>r.items.push(structuredClone(r.items[0])),r=>r.items[1].quantity='2',r=>r.items[0].description='One logo, no revisions',r=>r.items[0].name='Different work',r=>r.items[1].quantity='3e0',r=>r.items[1].unit_amount.currency_code='EUR']){const changed=structuredClone(remote);modify(changed);assert.throws(()=>verifyInvoice(changed,record),/differs/);}
+ const normalized=structuredClone(remote);normalized.items[1].quantity='3.00000';normalized.items[1].unit_amount.value='50';assert.doesNotThrow(()=>verifyInvoice(normalized,record));
+ assert.throws(()=>invoiceBody({...record,draft:{...record.draft,amount:'300.00'}}),/snapshot/);
+ const legacy={...record,invoiceFormatVersion:undefined};assert.equal(invoiceBody(legacy).items.length,1);
+});
+
+test('changed PayPal line details block send before any send POST',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'itemized-send-'));let remote,sends=0;
+ const api=async(path,body)=>{if(path.endsWith('/send')){sends++;return {};}if(body){remote={...structuredClone(body),id:'INV2-LINES',status:'DRAFT',amount:{currency_code:'USD',value:'100.00'}};return {id:remote.id};}return structuredClone(remote);};
+ try{const store=createInvoiceStore({directory:pathToFileURL(dir+'/'),api}),id=randomUUID(),saved=await store.create(id,draft,analysis);assert.equal(saved.invoiceFormatVersion,2);remote.items[0].description='Logo with zero revisions';await assert.rejects(store.send(id,{sendConfirmed:true,invoiceId:saved.invoiceId,recipient:draft.recipient,amount:draft.amount}),/differs/);assert.equal(sends,0);}finally{await rm(dir,{recursive:true,force:true});}
+});
+
+
+test('offsetting taxes and discounts cannot hide changes behind an unchanged total',()=>{
+ const record={invoiceFormatVersion:2,billingItems,invoiceNumber:'CHAT-ADJUSTMENTS',invoiceId:'INV2-ADJUSTMENTS',draft};
+ const remote={...invoiceBody(record),id:record.invoiceId,amount:{currency_code:'USD',value:'100.00'}};
+ for(const modify of [r=>{r.items[0].tax={percent:'10',amount:{currency_code:'USD',value:'10.00'}};r.items[0].discount={amount:{currency_code:'USD',value:'10.00'}};},r=>r.amount.breakdown={item_total:{currency_code:'USD',value:'100.00'},shipping:{currency_code:'USD',value:'5.00'},discount:{invoice_discount:{amount:{currency_code:'USD',value:'5.00'}}}},r=>r.items[0].discount={percent:'bogus'}]){const changed=structuredClone(remote);modify(changed);assert.throws(()=>verifyInvoice(changed,record),/differs/);}
+ const zero=structuredClone(remote);zero.items[0].discount={percent:'0.00',amount:{currency_code:'USD',value:'0.00'}};zero.amount.breakdown={tax_total:{currency_code:'USD',value:'0.00'}};assert.doesNotThrow(()=>verifyInvoice(zero,record));
+});
+
+test('unsupported PayPal unit price is rejected before saving or issuing a creation request',async()=>{
+ const rows=[{...billingItems[0],unitAmount:'1000000.01'}],c=calculateBilling(rows,{currency:'USD',agreementStatus:'CONFIRMED',modelReportedAmount:'1000000.01'});
+ const a={...analysis,billingItems:rows,calculation:c,amount:c.amount,service:c.service,modelReportedAmount:c.amount},d={...draft,amount:c.amount,service:c.service};
+ const dir=await mkdtemp(join(tmpdir(),'invoice-limit-'));let requests=0;
+ try{const store=createInvoiceStore({directory:pathToFileURL(dir+'/'),api:async()=>{requests++;}}),id=randomUUID();await assert.rejects(store.create(id,d,a),/unit price exceeds/);assert.equal(requests,0);assert.equal(await store.canRetryCreation(id),true);}finally{await rm(dir,{recursive:true,force:true});}
+});

@@ -8,6 +8,7 @@ export function validateDraft(data,analysis){
  if(!Array.isArray(analysis.billingItems)||analysis.calculation?.version!==1)throw Error('Invoice: itemized pricing is required. Analyze again.');
  const verified=calculateBilling(analysis.billingItems,{currency:analysis.currency,agreementStatus:analysis.modelAgreementStatus,modelReportedAmount:analysis.modelReportedAmount,pendingIssues:analysis.pendingIssues,explicitTotal:analysis.explicitTotal??null});
  if(!verified.canInvoice||verified.amount!==analysis.amount||data.amount!==verified.amount||data.service!==verified.service)throw Error('Invoice: the draft does not match the independently calculated items.');
+ if(analysis.billingItems.some(item=>item.status==='ACCEPTED'&&toCents(item.unitAmount)>100000000n))throw Error('Invoice: a unit price exceeds the PayPal invoice limit of USD 1,000,000.');
  const requiredIds=analysis.billingItems.filter(i=>i.status==='ACCEPTED').map(i=>i.id);
  if(!Array.isArray(data.reviewedItemIds)||data.reviewedItemIds.length!==requiredIds.length||new Set(data.reviewedItemIds).size!==requiredIds.length||!requiredIds.every(id=>data.reviewedItemIds.includes(id)))throw Error('Invoice: review every included item before creating an invoice.');
  if(typeof data.service!=='string'||!data.service.trim()||data.service.length>1000)throw Error('Invoice: service must contain 1–1,000 characters.');
@@ -16,7 +17,14 @@ export function validateDraft(data,analysis){
  if(typeof data.recipient!=='string'||!/^sb-[a-z0-9]+@personal\.example\.com$/i.test(data.recipient))throw Error('Invoice: use a generated sandbox personal account (sb-…@personal.example.com).');
  return {service:data.service.trim(),amount:data.amount,currency:'USD',recipient:data.recipient.toLowerCase()};
 }
-export function invoiceBody(record){return {detail:{invoice_number:record.invoiceNumber,currency_code:'USD',note:'Synthetic sandbox demonstration only. No real service or funds.',payment_term:{term_type:'DUE_ON_RECEIPT'}},primary_recipients:[{billing_info:{email_address:record.draft.recipient}}],items:[{name:'Design service',description:record.draft.service,quantity:'1',unit_amount:{currency_code:'USD',value:record.draft.amount}}],configuration:{allow_tip:false,partial_payment:{allow_partial_payment:false}}};}
+// Versioned mapping preserves read-only reconciliation of historical single-line invoices.
+export function invoiceItems(record){
+ if(record.invoiceFormatVersion!==2)return [{name:'Design service',description:record.draft.service,quantity:'1',unit_amount:{currency_code:'USD',value:record.draft.amount}}];
+ const calculated=calculateBilling(record.billingItems,{currency:'USD',agreementStatus:'CONFIRMED',modelReportedAmount:record.draft.amount,explicitTotal:record.explicitTotal??null});
+ if(!calculated.canInvoice||calculated.amount!==record.draft.amount||calculated.service!==record.draft.service)throw Error('Invoice: itemized snapshot does not match the confirmed total.');
+ return record.billingItems.filter(item=>item.status==='ACCEPTED').map(item=>({name:item.description,description:item.description,quantity:String(item.quantity),unit_amount:{currency_code:'USD',value:item.unitAmount}}));
+}
+export function invoiceBody(record){return {detail:{invoice_number:record.invoiceNumber,currency_code:'USD',note:'Synthetic sandbox demonstration only. No real service or funds.',payment_term:{term_type:'DUE_ON_RECEIPT'}},primary_recipients:[{billing_info:{email_address:record.draft.recipient}}],items:invoiceItems(record),configuration:{allow_tip:false,partial_payment:{allow_partial_payment:false}}};}
 export async function paypalApi(path,body){
  const id=process.env.PAYPAL_CLIENT_ID?.trim(),secret=process.env.PAYPAL_CLIENT_SECRET?.trim();
  if(!id||!secret)throw Error('Invoice: PayPal sandbox credentials are not configured. Restart with both env files.');
@@ -28,10 +36,23 @@ export async function paypalApi(path,body){
  if(!r.ok){const name=String(data.name||'API_ERROR').replace(/[^A-Z0-9_]/g,'').slice(0,60);throw Error(`Invoice: PayPal HTTP ${r.status} (${name}). Query status before retrying.`);}
  return data;
 }
+// This prototype never negotiates tax, shipping, discounts or surcharges.
+// Even offsetting adjustments must not change the agreed billing semantics.
+function nonzeroAdjustment(value){
+ if(value===null||value===undefined)return false;
+ if(typeof value==='object')return Object.entries(value).some(([key,entry])=>['value','percent'].includes(key)?(typeof entry!=='string'||!/^0+(?:\.0+)?$/.test(entry)):nonzeroAdjustment(entry));
+ return false;
+}
 export function verifyInvoice(remote,record){
- const d=record.draft,items=remote.items;
- const equalMoney=value=>{if(typeof value!=='string'||!/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(value))return false;const [whole,fraction='']=value.split('.');return toCents(whole+'.'+fraction.padEnd(2,'0'))===toCents(d.amount);};
- if(remote.id!==record.invoiceId||remote.detail?.invoice_number!==record.invoiceNumber||remote.amount?.currency_code!=='USD'||!equalMoney(remote.amount?.value)||remote.primary_recipients?.length!==1||remote.primary_recipients[0]?.billing_info?.email_address?.toLowerCase()!==d.recipient||(remote.additional_recipients?.length||0)>0||items?.length!==1||items[0].description!==d.service||Number(items[0].quantity)!==1||items[0].unit_amount?.currency_code!=='USD'||!equalMoney(items[0].unit_amount?.value)||remote.configuration?.allow_tip===true||remote.configuration?.partial_payment?.allow_partial_payment===true)throw Error('Invoice: remote invoice differs from the confirmed snapshot. Sending is blocked.');
+ const d=record.draft,items=remote.items,expected=invoiceItems(record);
+ const equalMoney=(value,expected)=>{if(typeof value!=='string'||!/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(value))return false;const [whole,fraction='']=value.split('.');return toCents(whole+'.'+fraction.padEnd(2,'0'))===toCents(expected);};
+ const equalQuantity=(value,expected)=>typeof value==='string'&&/^\d+(?:\.0{1,5})?$/.test(value)&&BigInt(value.split('.')[0])===BigInt(expected);
+ const extraAmounts=Object.entries(remote.amount?.breakdown||{}).filter(([key])=>key!=='item_total').some(([,value])=>nonzeroAdjustment(value));
+ const adjustments=extraAmounts||nonzeroAdjustment(remote.detail?.discount)||nonzeroAdjustment(remote.shipping_cost)||nonzeroAdjustment(remote.gratuity);
+ const linesMatch=Array.isArray(items)&&items.length===expected.length&&expected.every((line,index)=>{
+  const actual=items[index];return actual&&!nonzeroAdjustment(actual.tax)&&!nonzeroAdjustment(actual.discount)&&actual.name===line.name&&actual.description===line.description&&equalQuantity(actual.quantity,line.quantity)&&actual.unit_amount?.currency_code==='USD'&&equalMoney(actual.unit_amount?.value,line.unit_amount.value);
+ });
+ if(remote.id!==record.invoiceId||remote.detail?.invoice_number!==record.invoiceNumber||remote.amount?.currency_code!=='USD'||!equalMoney(remote.amount?.value,d.amount)||remote.primary_recipients?.length!==1||remote.primary_recipients[0]?.billing_info?.email_address?.toLowerCase()!==d.recipient||(remote.additional_recipients?.length||0)>0||adjustments||!linesMatch||remote.configuration?.allow_tip===true||remote.configuration?.partial_payment?.allow_partial_payment===true)throw Error('Invoice: remote invoice differs from the confirmed snapshot. Sending is blocked.');
 }
 export function createInvoiceStore({directory=new URL('../work/app-invoices/',import.meta.url),api=paypalApi,beforeSend=async()=>{}}={}){
  const locks=new Set();
@@ -48,7 +69,7 @@ export function createInvoiceStore({directory=new URL('../work/app-invoices/',im
  }
  return {
   async canRetryCreation(id){if(locks.has(id))return false;return (await load(id))===null;},
-  create(id,draft,analysis){return exclusive(id,async()=>{const old=await load(id);if(old)return query(old);const normalized=validateDraft(draft,analysis);await mkdir(directory,{recursive:true});const r={operationId:id,environment:'SANDBOX',invoiceNumber:'CHAT-'+randomUUID().replaceAll('-','').slice(0,16),draft:normalized,billingVersion:1,explicitTotal:analysis.explicitTotal??null,billingItems:analysis.billingItems,calculation:analysis.calculation,reviewedItemIds:draft.reviewedItemIds,statementConfirmation:draft.statementConfirmation?{...draft.statementConfirmation,recordedAt:new Date().toISOString()}:null,manualEdits:{service:false,amount:false},status:'CREATE_UNCERTAIN',createdAt:new Date().toISOString()};await writeFile(file(id),JSON.stringify(r,null,2),{flag:'wx'});
+  create(id,draft,analysis){return exclusive(id,async()=>{const old=await load(id);if(old)return query(old);const normalized=validateDraft(draft,analysis);await mkdir(directory,{recursive:true});const r={operationId:id,environment:'SANDBOX',invoiceNumber:'CHAT-'+randomUUID().replaceAll('-','').slice(0,16),draft:normalized,billingVersion:1,invoiceFormatVersion:2,explicitTotal:analysis.explicitTotal??null,billingItems:analysis.billingItems,calculation:analysis.calculation,reviewedItemIds:draft.reviewedItemIds,statementConfirmation:draft.statementConfirmation?{...draft.statementConfirmation,recordedAt:new Date().toISOString()}:null,manualEdits:{service:false,amount:false},status:'CREATE_UNCERTAIN',createdAt:new Date().toISOString()};await writeFile(file(id),JSON.stringify(r,null,2),{flag:'wx'});
    const remote=await api('/v2/invoicing/invoices',invoiceBody(r));let invoiceId=remote.id;if(!invoiceId){const href=remote.href||remote.links?.find(x=>x.rel==='self')?.href;if(href){const u=new URL(href);if(u.origin===sandbox&&/^\/v2\/invoicing\/invoices\/INV2-[A-Z0-9-]+$/.test(u.pathname))invoiceId=u.pathname.split('/').at(-1);}}
    if(!/^INV2-[A-Z0-9-]+$/.test(invoiceId||''))throw Error('Invoice: creation result is uncertain. Do not retry creation; reconcile in the merchant dashboard.');r.invoiceId=invoiceId;await save(r);return query(r);
   });},

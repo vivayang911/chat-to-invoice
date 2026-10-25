@@ -113,3 +113,24 @@ Targeted live follow-up (2026-10-25T02:52:32Z): E05 passes all automated checks 
 ### Paced complete live run, October 25
 
 Run 2026-10-25T02:54:24Z evaluated all 18 cases against the current source with a 3000 ms inter-case pause: 15 automated passes requiring review, and HTTP 429 failures for E03, E11 and E13. No returned result failed the scenario checks in this run. E05 and E18 both passed within this same complete run. This remains a blocked release gate because three cases did not complete; do not merge successes from other runs or infer a statistical accuracy rate. No new PayPal invoice, send or payment was requested. Local tests remain 75/75 passing.
+
+
+### Itemized statement and chat handoff
+
+Preview, shared statement and customer view now show work descriptions (including agreed revision scope), quantity, unit price and integer-cent line subtotals, followed by the existing total. Separately priced additions and paid revisions must remain separate sourced billing rows; included revision rounds stay in the package description, never receive invented prices. The model prompt now explicitly retains revision content and counts.
+
+The Finish chat and share fee statement action generates a fixed version and posts a customer confirmation link in the local demo chat after item/recipient review. It does not send email or external messages, create a PayPal invoice, or authorize payment. Open issues block sharing. Editing the chat withdraws the prior statement and removes its card. The new isolated itemized-statement browser test verifies three rows, poster subtotal USD 150, total USD 310, customer handoff and recovery. Prompt changes invalidate the previous live-model release gate; fresh full live verification is pending.
+
+
+### PayPal line-item mapping
+
+New invoices use invoiceFormatVersion 2 and map each accepted statement row to its own PayPal item, preserving the description (including revisions), quantity and unit price. Existing historical single-line invoices keep their original reconciliation format. Before sending, the remote line count, ordered names/descriptions, quantities, unit prices, currency and aggregate total must match the saved snapshot. Equal-total price redistribution, missing/duplicate lines and changed scope are rejected. Numeric normalization accepts ordinary decimal unit prices and integer quantities with trailing decimal zeros, never exponents.
+
+77 local tests pass. The isolated USD 310 browser acceptance checks the outgoing three-line PayPal request, separate customer confirmation, restart/recovery and simulated payment status. Zero real model or PayPal calls during this follow-up. Real PayPal itemization and a new payment are not yet verified.
+
+API reference: https://developer.paypal.com/invoicing/object/ (items name, description, quantity and unit_amount).
+
+
+### Invoice boundary follow-up
+
+79 local tests pass. Remote invoice verification now rejects nonzero tax/discount/shipping/other breakdown adjustments even when they offset and preserve the total. Ordinary zero-valued provider adjustment fields remain accepted. Unit prices above the PayPal USD 1,000,000 item limit are rejected before persisting a creation attempt or issuing any PayPal request. Added regressions prove zero requests and safe correction after this validation error. Isolated itemized release flow and uncertain-send/expiry browser tests pass. No live model or PayPal calls during this follow-up.

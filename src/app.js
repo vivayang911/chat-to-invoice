@@ -1,3 +1,4 @@
+import {renderFeeTable} from './fee-table.mjs';
 import {t,language} from './ui-language.mjs';
 import {acknowledgeStatement} from './statement-recovery.mjs';
 import {statementExpired} from './statement-state.mjs';
@@ -15,7 +16,7 @@ function renderMessages(){
   edit.addEventListener('click',()=>{const input=document.createElement('textarea');input.value=match[2];input.maxLength=5000;const save=document.createElement('button');save.textContent=t('Save message');save.className='secondary';save.addEventListener('click',()=>{if(invoiceBusy||invoice||statementBusy||savedOperation())return;const value=input.value.trim().replace(/\r?\n/g,' ');if(!value)return;const lines=$('chat').value.split('\n').filter(Boolean);lines[i]=`${match[1]}: ${value}`;const next=lines.join('\n');if(next.length>20000){$('notice').textContent=t('Conversation is limited to 20,000 characters.');return;}$('chat').value=next;$('chat').dispatchEvent(new Event('input'));});bubble.replaceChildren(input,save);edit.hidden=true;});
   const portrait=document.createElement('img');portrait.className='messageAvatar';portrait.src=seller?'/seller-avatar.svg':'/buyer-avatar.svg';portrait.alt=seller?'Seller avatar':'Customer avatar';portrait.width=32;portrait.height=32;
   const body=document.createElement('div');body.className='messageBody';body.append(meta,bubble,edit);row.append(portrait,body);box.append(row);
- }box.scrollTop=box.scrollHeight;
+ }if(statementSnapshot&&!['REVOKED','CHANGES_REQUESTED','UNKNOWN'].includes(statementSnapshot.statement.status)){const card=document.createElement('div');card.className='chatStatement';const title=document.createElement('strong');title.textContent=t('Fee statement ready for customer confirmation');const summary=document.createElement('p');summary.textContent=statementSnapshot.statement.draft.amount+' USD';const link=document.createElement('a');link.href=$('buyerUrl').value;link.target='_blank';link.rel='noopener noreferrer';link.textContent=t('Review and confirm itemized statement');card.append(title,summary,link);box.append(card);}box.scrollTop=box.scrollHeight;
 }
 $('addMessage').addEventListener('click',()=>{
  const text=$('messageText').value.trim().replace(/\r?\n/g,' ');if(!text){$('messageText').focus();return;}
@@ -36,13 +37,15 @@ function flushWithdrawals(){if(withdrawalFlight)return withdrawalFlight;withdraw
 function queueAnalysis(){clearTimeout(autoTimer);if($('autoTrack').checked&&$('consent').checked&&!invoice)autoTimer=setTimeout(()=>{if(busy){queueAnalysis();return;}$('analyze').click();},1200);}
 $('consent').addEventListener('change',()=>{if($('consent').checked)queueAnalysis();else{clearTimeout(autoTimer);requestVersion++;invalidate();result=null;$('result').hidden=true;$('empty').hidden=false;refresh();}});
 $('autoTrack').addEventListener('change',()=>{if($('autoTrack').checked)queueAnalysis();else clearTimeout(autoTimer);}); 
-function invalidate(){if(checkpointReady)clearCheckpoint();const old=statementSnapshot;statementSnapshot=null;if(old?.token){pendingWithdrawals.set(old.id,old.token);flushWithdrawals().catch(()=>{$('notice').textContent=t('Could not withdraw the old statement. Reconnect before continuing.');});}$('sharedStatement').hidden=true;confirmedVersion=-1;version++;$('review').checked=false;$('resolved').checked=false;$('reviewState').textContent=t('This version is not confirmed. Review again after editing the chat or draft.');}
+function invalidate(){if(checkpointReady)clearCheckpoint();const old=statementSnapshot;statementSnapshot=null;if(old?.token){pendingWithdrawals.set(old.id,old.token);flushWithdrawals().catch(()=>{$('notice').textContent=t('Could not withdraw the old statement. Reconnect before continuing.');});}$('sharedStatement').hidden=true;renderMessages();confirmedVersion=-1;version++;$('review').checked=false;$('resolved').checked=false;$('reviewState').textContent=t('This version is not confirmed. Review again after editing the chat or draft.');}
 function refresh(){
   const current=result&&result.chat===$('chat').value;
   const validAmount=/^(?:0|[1-9]\d{0,7})\.\d{2}$/.test($('amount').value)&&Number($('amount').value)>0;
   $('previewService').textContent=t(current?$('service').value||'Service scope needs confirmation':'Awaiting analysis and review');
+  renderFeeTable($('previewItems'),current?result.extracted.billingItems||[]:[],t,result?.extracted.currency??null);
   $('previewAmount').textContent=t(current&&validAmount&&result.extracted.currency==='USD'?`$${$('amount').value} USD`:'—');
   $('confirm').disabled=statementBusy||statementActionBusy||Boolean(invoice)||Boolean(savedOperation())||!current||busy||!result?.extracted.calculation?.canInvoice||$('amount').value!==result.extracted.calculation.amount||$('service').value!==result.extracted.calculation.service||!allBillingItemsReviewed()||result.extracted.agreementStatus!=='CONFIRMED'||!$('service').value.trim()||$('service').value.length>1000||!validAmount||result.extracted.currency!=='USD'||!/^sb-[a-z0-9]+@personal\.example\.com$/i.test($('recipient').value.trim())||!$('recipient').checkValidity()||!$('consent').checked||!$('review').checked||(result.extracted.pendingIssues.length&&!$('resolved').checked);
+  $('finishChat').disabled=$('confirm').disabled;
   $('createInvoice').disabled=$('confirm').disabled||confirmedVersion!==version||invoiceBusy||Boolean(invoice)||Boolean(savedOperation())||!statementSnapshot||statementSnapshot.statement?.status!=='CONFIRMED'||statementExpired(statementSnapshot.statement);
   $('sendInvoice').disabled=invoiceBusy||!invoice||invoice.status!=='DRAFT'||Boolean(invoice.sendAttemptedAt)||Boolean(invoice.sendBlockedReason)||!$('sendConsent').checked;
   $('refreshInvoice').disabled=invoiceBusy;
@@ -74,10 +77,12 @@ async function statementApi(action,payload){const response=await fetch('/api/sta
 function showStatement(statement){
  if(!statementSnapshot||statement.id!==statementSnapshot.id)return;
  statementSnapshot.statement=statement;$('sharedStatement').hidden=false;saveCheckpoint();
+ renderFeeTable($('statementItems'),statement.items,t);renderMessages();
  $('statementDetails').textContent=t('Statement version')+' '+statement.version+'\n'+statement.items.map(i=>`${i.description} · ${i.quantity} × ${i.unitAmount} USD`).join('\n')+'\n'+t('Total')+': '+statement.draft.amount+' USD\n'+statement.draft.recipient;
  $('sellerAccept').disabled=Boolean(statement.sellerConfirmedAt)||statement.expired||['REVOKED','CHANGES_REQUESTED'].includes(statement.status);
  $('partyState').textContent=t('Seller')+': '+(statement.sellerConfirmedAt?t('Confirmed'):t('Waiting'))+' · '+t('Customer')+': '+(statement.buyerConfirmedAt?t('Confirmed'):t('Waiting'))+'\n'+t(statement.status)+(statement.feedback?'\n'+statement.feedback:'');refresh();
 }
+$('finishChat').addEventListener('click',()=>{refresh();if(!$('finishChat').disabled)$('confirm').click();});
 $('confirm').addEventListener('click',async()=>{
  refresh();if($('confirm').disabled)return;const requestAt=version,op=result.operationId;const old=statementSnapshot;if(old?.token)pendingWithdrawals.set(old.id,old.token);statementSnapshot=null;confirmedVersion=-1;$('sharedStatement').hidden=true;statementBusy=true;refresh();
  try{await flushWithdrawals();const data=await statementApi('create',{operationId:op,service:$('service').value,amount:$('amount').value,recipient:$('recipient').value.trim(),reviewed:$('review').checked,resolved:$('resolved').checked,reviewedItemIds:reviewedBillingIds()});

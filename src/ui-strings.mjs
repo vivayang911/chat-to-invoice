@@ -1,4 +1,18 @@
 export const zh = {
+"Currency unconfirmed":"币种未确认",
+"Itemized fee statement":"费用明细对账单",
+"Work and agreed changes":"服务事项、修改及新增内容",
+"Quantity":"数量",
+"Unit price":"单价",
+"Subtotal":"小计",
+"Original scope and revision terms":"原约定范围及修改条款",
+"Revisions included in an agreed package are included in its price. Only separately agreed extras are charged separately.":"原套餐包含的修改次数及内容已包含在套餐价中；只有另行约定价格的新增或修改项目才单独计费。",
+"Fee statement ready for customer confirmation":"对账单已生成，请客户确认",
+"Review and confirm itemized statement":"查看并确认费用明细",
+"Finish chat and share fee statement":"结束聊天并发送对账单确认",
+"Review the itemized statement and recipient first. This shares a local confirmation link in the demo chat; it does not send email or request payment.":"请先核对右侧明细和客户邮箱。此操作在演示聊天中展示客户确认链接，不发送邮件或发起付款。",
+"Generate and share fee statement":"生成并发送对账单确认",
+
 "The calculated total differs from the final total accepted by the customer. Correct the conversation and analyze again.":"明细计算结果与客户最后明确接受的总价不一致。请核对聊天后重新分析。",
 "The model omitted later financial messages. Clarify the conversation and analyze again.":"模型遗漏了后续费用消息。请明确聊天内容后重新分析。",
 "The model missed contextual acceptance evidence. Clarify the reply explicitly and analyze again.":"模型仍未正确关联上下文中的接受依据。请明确回复接受哪一项，再重新分析。",

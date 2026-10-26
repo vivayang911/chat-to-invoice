@@ -122,3 +122,5 @@ On other platforms, set MODEL_PROVIDER=groq and run `node --env-file=work/groq-m
 Groq's token-reset pacing is shared across analyses in one server process. Quota waits use the existing request abort signal; Retry-After can use at most one shared retry and up to 60 seconds, only if the original 90-second analysis deadline permits it. Other provider retry behavior is unchanged. Multi-process or external account usage can still exhaust quota; no availability guarantee is implied. Creating or sending invoices remains a separate confirmed action.
 
 Detailed application integration evidence: [Groq application acceptance](docs/submission/GROQ-APPLICATION-ACCEPTANCE.md).
+
+Submission review materials: [judge setup](docs/submission/JUDGE-GUIDE.md), [English Devpost copy](docs/submission/DEVPOST-DRAFT.md), and [local video review record](docs/submission/VIDEO-REVIEW.md). A 159.6-second English video draft exists locally; owner approval and public YouTube upload remain pending.

@@ -1,47 +1,39 @@
-# Demo script — target 2 minutes 40 seconds
+# English demonstration narration - review draft
 
-This is a recording plan, not an existing video. Keep the finished video under three minutes. Use synthetic messages and sandbox funds. Do not show environment files, secrets, account passwords, or access tokens.
+Actual application footage; live Groq requests; a separately verified USD1 transaction queried read-only. The USD310 negotiation is a different example. Offline Microsoft Zira narration. Publication has not occurred.
 
-## Before recording
+## 1. From chat to a reviewable bill
 
-- Confirm the local app and both provider configurations work.
-- Use the clearly labeled synthetic conversations. Prepare the generated sandbox buyer account and its password privately.
-- For a fresh end-to-end recording, use a separate browser profile without a previous saved operation. Keep existing invoice records intact. Create one new invoice only through explicit review and confirmation; do not delete uncertain-operation records or repay the completed invoice.
-- If showing the already completed transaction instead, label it **Previously verified sandbox transaction**. Do not present existing payment status as the result of a new live operation.
-- Real API waits may exceed the time budget. If shortening a wait in editing, visibly label the cut **Waiting time shortened**; do not replace a live response with invented output.
+Independent sellers negotiate prices in chat. But an accepted logo, a later poster request, and a changed quantity are different commitments. Chat to Invoice keeps those details visible before the seller asks for payment.
 
-## 0:00–0:20 — Problem
+## 2. Unaccepted work stays pending
 
-Show the buyer–seller conversation with a logo agreement and an unanswered poster request.
+This is the running application, using Groq with synthetic messages. The customer has accepted the logo, but not the extra poster. Analysis links the items to original messages. An unresolved financial request blocks invoicing; it cannot be approved by checking a box.
 
-**Narration:** “A designer agrees to a logo, then receives an extra request. Turning this conversation into an invoice means separating the accepted work from the work that is still being discussed. Chat to Invoice helps the seller review that distinction before requesting payment.”
+## 3. Explicit agreement → itemized charges
 
-## 0:20–0:55 — AI and evidence
+Now the customer accepts three posters and a one-time text fee. The AI extracts quantities, pricing basis, and source references. The program calculates one hundred plus three times fifty plus sixty: three hundred and ten dollars. Included revisions are preserved rather than charged again.
 
-Run the extra-request example. Show the accepted USD 100 subtotal, two revision rounds, pending poster and original citations. The final payable total is blocked until the poster request is resolved.
+## 4. One fixed version for both parties
 
-**Narration:** “The AI organizes the agreed amount and scope, with links back to the original messages. The poster stays outside the agreed price. It is an open issue, not an automatically approved extra. Matching a quote is not proof that the AI is right, so the seller still reviews it.”
+The seller reviews the line items and test recipient, then shares a fixed statement in the demo chat. No invoice has been sent. Seller confirmation alone does not authorize the next step.
 
-## 0:55–1:15 — Changed agreement
+## 5. Customer reviews the same version
 
-Show the revised-price example. Analyze it and show that the new price is unaccepted and creation is blocked.
+The local confirmation link opens the customer view. This recording switches between synthetic roles, not verified identities. The customer reviews the same items and confirms. Only then does the app enable creation of a PayPal Sandbox draft.
 
-**Narration:** “When the seller withdraws the price and proposes a new one, the app does not simply take the last amount. It asks for clarification. Editing the conversation also invalidates the old confirmation.”
+## 6. A correction invalidates the agreement
 
-## 1:15–2:15 — PayPal flow
+If the customer requests a quantity change, the old version becomes unusable for invoicing. The parties must resolve the change and review a new statement. This avoids collecting against an outdated agreement.
 
-For a continuous new recording, switch to a clearly accepted example, analyze it, review the scope and amount, enter the test recipient, save the fixed statement, confirm as seller, open the separate customer page for customer acknowledgement, query both parties’ status, create the draft, and separately confirm sending. Show the buyer using PayPal's sandbox page and then query status. Keep credentials out of the recording.
+## 7. Previously verified transaction · separate USD 1 test
 
-**Narration:** “With a clear agreement, the seller and customer confirm the same fee statement and the seller checks the test recipient. PayPal Invoicing creates the sandbox invoice. Sending is a separate action on the saved snapshot. The buyer approves payment on PayPal. Back in the app, a status query confirms whether the invoice has actually been paid.”
+This is a separate, previously verified one-dollar Sandbox transaction, not payment for the three-hundred-and-ten-dollar example. The test buyer paid on PayPal. Here the app queries PayPal again and receives PAID. The application does not infer payment from a return page.
 
-If using the already verified receipt, explicitly say: “This is a previously verified sandbox transaction,” and show the saved invoice's PAID result. Do not narrate it as a fresh payment.
+## 8. AI interprets · people review · PayPal collects
 
-## 2:15–2:40 — Boundaries and close
+The current build passed twenty authored live-model regression cases and one hundred local tests. That is regression evidence, not a general accuracy claim. This local prototype focuses on reviewable negotiated charges. AI interprets language, people confirm the details, and PayPal handles payment.
 
-Show restored status and the project overview.
+## Review before publication
 
-**Narration:** “This prototype focuses on one problem: turning a negotiated conversation into a reviewable collection request. AI organizes the language; the seller approves the invoice; PayPal handles the payment. The demo uses synthetic messages and sandbox funds. Real-user trials and repeated reliability testing are the next steps.”
-
-## Export checks
-
-Watch the complete exported video. Check English narration or subtitles, readable source quotes, truthful live/replay labels, no exposed credentials, audible sound, and a duration below three minutes. Upload and visibility checks are separate user actions; no upload has happened yet.
+Check the exported video, voice, captions and footage timing. Private confirmation-link fields are masked in the export. Keep the separate previously verified USD1 transaction label visible. Label any shortened API waiting time. The finished video must stay below three minutes. Upload the approved version publicly on YouTube and verify its actual URL before adding it to Devpost.

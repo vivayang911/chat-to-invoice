@@ -278,7 +278,7 @@
     "result": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
     "limitation": "One run per existing authored regression, not held-out accuracy. Latency includes quota waits. Production still uses Agnes; separate full application integration and payment acceptance remain outstanding."
   },
-  "nextGate": "ENGLISH_DEMO_VIDEO_AND_FINAL_SUBMISSION_REVIEW",
+  "nextGate": "OWNER_VIDEO_REVIEW_THEN_PUBLIC_YOUTUBE_AND_DEVPOST_SUBMISSION",
   "groqApplicationIntegration": {
     "date": "2026-10-26",
     "implemented": true,
@@ -360,5 +360,21 @@
       "paymentInitiatedByApp": false,
       "paidVerified": true
     }
-  }
+  },
+  "englishDemoVideo": {
+    "draftCreated": true,
+    "file": "releases/chat-to-invoice-english-demo-draft-20261026.mp4",
+    "durationSeconds": 159.6,
+    "resolution": "1920x1080",
+    "narration": "English offline TTS",
+    "fullDecodePassed": true,
+    "sampledFramesReviewed": true,
+    "ownerApproved": false,
+    "uploaded": false,
+    "publicYouTubeUrl": null,
+    "sha256": "0a29e897399b9d28eb458cd86908a214a2a4e888688c8e99ae351394689dd2ac"
+  },
+  "submissionCopyPrepared": true,
+  "judgeGuidePrepared": true,
+  "rulesRecheckedDate": "2026-10-26"
 }

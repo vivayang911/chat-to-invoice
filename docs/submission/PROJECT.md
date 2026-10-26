@@ -24,7 +24,7 @@ Separate confirmation tokens, fixed version fingerprints and persistent operatio
 
 ## Verification and limitations
 
-See ACCEPTANCE-AND-DELIVERY.md for the dated release assessment. Local tests and simulated-provider browser tests do not establish AI accuracy or prove a live PayPal round trip. A historical USD 100 application invoice was paid in Sandbox and was queried again on October 24, 2026; it predates the latest acknowledgement workflow. No claim is made that a new live payment was completed by the latest build.
+See ACCEPTANCE-AND-DELIVERY.md for the dated release assessment. Local tests and simulated-provider browser tests do not establish AI accuracy or prove a live PayPal round trip. The latest Groq application build passed one complete 20-case authored regression and 100 local tests. A new current-build USD 1.00 Sandbox invoice completed analysis, synthetic-role seller/customer acknowledgements, creation, sending and buyer payment; a PayPal API query confirmed PAID on October 26, 2026 at 06:08:44 UTC. These are synthetic test roles and Sandbox funds, not a real-customer trial or a measured accuracy rate.
 
 The authored 20-case live model suite includes missing currency, cancellation, injection, withdrawn quotes and multi-turn Chinese additions. Earlier failed outputs are retained. Model interpretation, source relevance and contextual acceptance remain limitations even when automated checks pass. Users should use synthetic examples: the model provider's retention policy has not been independently verified.
 

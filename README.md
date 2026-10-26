@@ -2,7 +2,7 @@
 
 Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English submission interface by default; optional Chinese trial mode.
 
-**Candidate status (October 26, 2026):** Explicit Groq application integration passed a complete final-code 20-case live regression. All 100 local tests pass. The new USD 1.00 current-build Sandbox invoice was verified PAID through the PayPal API on October 26, 2026. Formal freeze, final video and competition submission remain incomplete. See RELEASE-STATUS.json and the dated integration report.
+**Candidate status (October 26, 2026):** Explicit Groq application integration passed a complete final-code 20-case live regression. All 100 local tests pass. The new USD 1.00 current-build Sandbox invoice was verified PAID through the PayPal API on October 26, 2026. The English demonstration video is now public on YouTube; formal release designation and Devpost submission remain incomplete. See RELEASE-STATUS.json and the dated integration report.
 
 ## Scope
 
@@ -123,4 +123,6 @@ Groq's token-reset pacing is shared across analyses in one server process. Quota
 
 Detailed application integration evidence: [Groq application acceptance](docs/submission/GROQ-APPLICATION-ACCEPTANCE.md).
 
-Submission review materials: [judge setup](docs/submission/JUDGE-GUIDE.md), [English Devpost copy](docs/submission/DEVPOST-DRAFT.md), and [local video review record](docs/submission/VIDEO-REVIEW.md). A 159.6-second English video draft exists locally; owner approval and public YouTube upload remain pending.
+Submission review materials: [judge setup](docs/submission/JUDGE-GUIDE.md), [English Devpost copy](docs/submission/DEVPOST-DRAFT.md), and [local video review record](docs/submission/VIDEO-REVIEW.md). The 159.6-second English demonstration video is public: https://www.youtube.com/watch?v=mktAnFZcDj0 . Devpost submission remains pending.
+
+Public demonstration: [Chat to Invoice | PayPal AI Hackathon Demo](https://www.youtube.com/watch?v=mktAnFZcDj0).

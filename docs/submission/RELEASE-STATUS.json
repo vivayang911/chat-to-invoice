@@ -278,7 +278,7 @@
     "result": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
     "limitation": "One run per existing authored regression, not held-out accuracy. Latency includes quota waits. Production still uses Agnes; separate full application integration and payment acceptance remain outstanding."
   },
-  "nextGate": "OWNER_VIDEO_REVIEW_THEN_PUBLIC_YOUTUBE_AND_DEVPOST_SUBMISSION",
+  "nextGate": "DEVPOST_FORM_REVIEW_AND_FINAL_SUBMISSION",
   "groqApplicationIntegration": {
     "date": "2026-10-26",
     "implemented": true,
@@ -370,11 +370,20 @@
     "fullDecodePassed": true,
     "sampledFramesReviewed": true,
     "ownerApproved": false,
-    "uploaded": false,
-    "publicYouTubeUrl": null,
-    "sha256": "0a29e897399b9d28eb458cd86908a214a2a4e888688c8e99ae351394689dd2ac"
+    "uploaded": true,
+    "publicYouTubeUrl": "https://www.youtube.com/watch?v=mktAnFZcDj0",
+    "sha256": "0a29e897399b9d28eb458cd86908a214a2a4e888688c8e99ae351394689dd2ac",
+    "visibility": "PUBLIC",
+    "channelName": "yang dada",
+    "channelId": "UC-NBf59A1GSZz8zpfoa6H0g",
+    "publishedDate": "2026-10-26",
+    "watchPageVerified": true,
+    "copyrightChecks": "NO_ISSUES_REPORTED",
+    "publicationAuthorizedByUser": true,
+    "ownerFullPlaybackConfirmed": false
   },
   "submissionCopyPrepared": true,
   "judgeGuidePrepared": true,
-  "rulesRecheckedDate": "2026-10-26"
+  "rulesRecheckedDate": "2026-10-26",
+  "devpostSubmitted": false
 }

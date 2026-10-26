@@ -1,6 +1,6 @@
 # Devpost submission copy — review draft
 
-This is prepared copy, not a submitted entry. Verify the team details and add the actual public YouTube URL before submitting.
+This is prepared copy, not a submitted entry. Verify the team details and all submission fields before submitting. The public YouTube link below has been published and checked.
 
 ## Project name
 Chat to Invoice
@@ -34,7 +34,7 @@ Node.js; JavaScript; HTML; CSS; Groq API; qwen3.8-27b; PayPal Invoicing API; Pay
 
 ## Links
 - Public source and setup: https://github.com/vivayang911/chat-to-invoice
-- Public YouTube video: NOT YET UPLOADED — replace only after verification.
+- Public YouTube video: https://www.youtube.com/watch?v=mktAnFZcDj0
 
 ## Submission checks
-The official rules were rechecked October 26, 2026: https://paypalaihackathon.devpost.com/rules . Provide an English description, public open-source repository, working build access through complete setup instructions or hosting, and a public YouTube video under three minutes showing the working project. Deadline: November 12, 2026, 12:00 PST, equivalent to November 13, 04:00 Asia/Shanghai. Do not submit this draft with a placeholder video URL.
+The official rules were rechecked October 26, 2026: https://paypalaihackathon.devpost.com/rules . Provide an English description, public open-source repository, working build access through complete setup instructions or hosting, and a public YouTube video under three minutes showing the working project. Deadline: November 12, 2026, 12:00 PST, equivalent to November 13, 04:00 Asia/Shanghai. The Devpost form still needs review and submission; publishing the YouTube video does not submit the project.

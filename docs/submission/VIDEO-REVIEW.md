@@ -11,3 +11,8 @@ Full audio/video decoding passed and sampled frames were inspected. A Windows li
 Owner full playback review is still required before publication. In particular, check audible English narration, readable text, the brief customer-view transition and the historical-payment label. The draft has not been uploaded to YouTube and has no public video URL.
 
 Official requirements rechecked October 26, 2026: https://paypalaihackathon.devpost.com/rules . The video must show a functioning project, stay below three minutes, and be publicly visible on YouTube. English materials are required or must have an English translation. The public repository must include an open-source license and complete running instructions.
+
+
+## Publication verified - October 26, 2026
+
+The user uploaded the prepared MP4 to the yang dada channel. The existing upload was used; no duplicate file was uploaded. The English title and description were completed, the video was marked not made for children, copyright checks reported no issues, and Public visibility was selected before publishing. Studio displayed Published on October 26, 2026. The watch page loaded the correct title and playable 2:39 video. Public URL: https://www.youtube.com/watch?v=mktAnFZcDj0 . Studio rounded its duration to 2:40; the local measured duration remains 159.6 seconds. The description distinguishes the USD310 example from the separate previously verified USD1 transaction. Full owner playback was not independently confirmed; publication was authorized through the user continuation and existing upload workflow. Devpost has not been submitted.

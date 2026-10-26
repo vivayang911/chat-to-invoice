@@ -2,7 +2,7 @@
 
 Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English submission interface by default; optional Chinese trial mode.
 
-**Candidate status (October 26, 2026):** Explicit Groq application integration passed a complete final-code 20-case live regression. All 100 local tests pass. A new USD 1.00 current-build Sandbox invoice is SENT, awaiting buyer payment and API PAID verification. Formal freeze, final video and competition submission remain incomplete. See RELEASE-STATUS.json and the dated integration report.
+**Candidate status (October 26, 2026):** Explicit Groq application integration passed a complete final-code 20-case live regression. All 100 local tests pass. The new USD 1.00 current-build Sandbox invoice was verified PAID through the PayPal API on October 26, 2026. Formal freeze, final video and competition submission remain incomplete. See RELEASE-STATUS.json and the dated integration report.
 
 ## Scope
 

@@ -41,3 +41,8 @@ Final-code run 2026-10-26T03-14-03-914Z completed all 20 cases in one sequential
 After the complete gate passed, the current application prepared a new synthetic-role USD 1.00 Sandbox invoice through live analysis, fixed statement creation, separate seller/buyer role acknowledgements, draft creation and a separately requested send. PayPal returned SENT at 2026-10-26T03:23:16.958Z. The harness records its state before writes and does not retry them or pay. These are synthetic role acknowledgements, not verified customer identity or independent human review. No real money is involved.
 
 Buyer payment on the PayPal Sandbox page and a subsequent API status query confirming PAID are still outstanding. SENT is not PAID. The historical paid invoices are not substituted for this candidate. No formal freeze, video publication or completed competition submission is claimed. Private operation identifiers and the buyer payment URL stay in work/release-sandbox-acceptance.json.
+
+
+## Buyer payment verified through PayPal API
+
+After the user reported completing buyer payment, the read-only status command queried the same current-build USD 1.00 Sandbox invoice. PayPal returned PAID at 2026-10-26T06:08:44.297Z (October 26, 14:08:44 Asia/Shanghai). The application did not initiate a new payment, capture, invoice creation or send. This closes the current-build Sandbox payment acceptance gate; the initial SENT record above remains historical. The acknowledgements used synthetic test roles and the transfer used Sandbox funds. Final English video, submission review and formal release designation remain outstanding.

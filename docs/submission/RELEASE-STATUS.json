@@ -4,9 +4,9 @@
   "completeSuite": true,
   "cases": 20,
   "automatedPassed": 16,
-  "releaseGate": "AUTOMATED_GATE_PASSED_MANUAL_PAYMENT_ACCEPTANCE_REQUIRED",
+  "releaseGate": "FUNCTIONAL_ACCEPTANCE_PASSED_SUBMISSION_PENDING",
   "formalFreeze": false,
-  "newLivePaymentVerified": false,
+  "newLivePaymentVerified": true,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
   "localTestsPassed": 100,
   "failures": [
@@ -278,7 +278,7 @@
     "result": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
     "limitation": "One run per existing authored regression, not held-out accuracy. Latency includes quota waits. Production still uses Agnes; separate full application integration and payment acceptance remain outstanding."
   },
-  "nextGate": "BUYER_SANDBOX_PAYMENT_THEN_API_PAID_VERIFICATION",
+  "nextGate": "ENGLISH_DEMO_VIDEO_AND_FINAL_SUBMISSION_REVIEW",
   "groqApplicationIntegration": {
     "date": "2026-10-26",
     "implemented": true,
@@ -330,7 +330,7 @@
     },
     "completeFinalCodeSuitePassed": true,
     "formalFreeze": false,
-    "latestBuildPaymentAcceptance": false,
+    "latestBuildPaymentAcceptance": true,
     "finalCompleteRun": {
       "runId": "2026-10-26T03-14-03-914Z",
       "model": "qwen/qwen3.8-27b",
@@ -355,10 +355,10 @@
       "amount": "1.00",
       "currency": "USD",
       "syntheticRoles": true,
-      "status": "SENT",
-      "checkedAt": "2026-10-26T03:23:16.958Z",
+      "status": "PAID",
+      "checkedAt": "2026-10-26T06:08:44.297Z",
       "paymentInitiatedByApp": false,
-      "paidVerified": false
+      "paidVerified": true
     }
   }
 }

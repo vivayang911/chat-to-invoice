@@ -188,3 +188,6 @@ Targeted real E11 run 2026-10-25T12:26:51Z was initially REVIEW_REQUIRED only be
 ### October 26 Groq integration checkpoint
 
 Final-code complete run 2026-10-26T03-14-03-914Z passed all 20 cases in one run, after the earlier 17/20 integration run and separate targeted fixes. 100 local tests passed. The actual Chinese blank-chat browser flow confirmed exact 12 USD itemization and separate-party gating. See GROQ-APPLICATION-ACCEPTANCE.md for limitations, recovered 429s and preserved failures. A new current-build synthetic-role USD1 Sandbox invoice is SENT; buyer payment and API PAID verification are pending. No formal freeze or final submission.
+
+
+October 26 payment follow-up: the user completed payment of the new USD1 Sandbox invoice. A read-only PayPal API status query confirmed PAID at 2026-10-26T06:08:44.297Z. Latest-build payment acceptance is now verified. No write or payment was repeated; final video and submission remain outstanding.

@@ -4,7 +4,7 @@ This archive is a local sandbox prototype, not a hosted service or a completed c
 
 1. Install Node.js 22 or later and extract the archive into a new folder.
 2. Open a terminal in the extracted `chat-to-invoice` folder. Run `npm test` before configuring any API credentials. The tests do not make real model or PayPal calls.
-3. Follow the README's first-time setup to copy the two configuration templates into `work/`. Use your own Agnes key and your own PayPal sandbox application credentials.
+3. Follow the README's first-time setup to copy the two configuration templates into `work/`. Use your own Agnes key (baseline), or follow the explicit Groq startup in README and your own PayPal sandbox application credentials.
 4. Run `npm start`, then open `http://127.0.0.1:4187` on the same computer.
 5. Begin with the supplied synthetic examples. Review original evidence and open issues. A real model call requires consent and may take up to 90 seconds, including bounded citation recovery.
 6. To test invoices, use your own generated personal sandbox buyer. First save a fixed statement and collect both seller and customer acknowledgements on separate pages. A draft, a sent invoice, and a paid invoice are separate states. Sending and buyer payment require separate confirmation.
@@ -18,3 +18,5 @@ For a real designer trial, see USER-TRIAL.md. No trial has happened merely becau
 The source tree in the full development workspace has additional historical diagnostics and notes. They are deliberately omitted from this trial archive. The included tests, live synthetic evaluator, and current English documents are sufficient to reproduce the core prototype.
 
 Optional browser regression (developer dependency only): install Playwright locally with `npm install --no-save --package-lock=false playwright` and `npx playwright install chromium`. Then run `node scripts/check-release-flow.cjs` from the extracted project root. This starts an isolated server, uses synthetic model data and a simulated payment provider, checks both-party confirmation and recovery, and makes zero real API calls. Its simulated PAID state is not a PayPal receipt.
+
+For the Groq candidate on Windows, configure the private work/groq-model.env file and run `npm run start:groq`. Check that the provider shown above the consent control is Groq / qwen/qwen3.8-27b. The active candidate is not a formal release; model integration and latest-build payment acceptance remain separate gates.

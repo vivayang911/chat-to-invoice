@@ -1,3 +1,4 @@
+import {publicModelConfiguration} from '../src/model-provider.mjs';
 import {evaluationChecks} from '../src/evaluation-checks.mjs';
 // Synthetic data only. Sequential calls to the production model adapter; no PayPal imports.
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -24,7 +25,7 @@ const selected=process.argv.slice(2);if(selected.some(id=>!evaluationCases.some(
 }
 const complete=results.length===evaluationCases.length;
 const allPassed=results.every(x=>x.status==='AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED');
-await writeFile(new URL('summary.json',directory),JSON.stringify({runId,pauseMs,model:'agnes-3.0-flash',contract:'ITEMIZED_BILLING_V1',strategy:process.env.ANALYSIS_STRATEGY||'direct',criteria:'final gate, source references, and explicit component coverage; no proof of semantic correctness',releaseGate:complete&&allPassed?'AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED':'BLOCKED_OR_INCOMPLETE',completeSuite:complete,results,limitation:'One synthetic run per case. Automated checks do not establish semantic correctness or production accuracy. No invoice or payment requests.'},null,2));
+await writeFile(new URL('summary.json',directory),JSON.stringify({runId,pauseMs,model:publicModelConfiguration().model,contract:'ITEMIZED_BILLING_V1',strategy:process.env.ANALYSIS_STRATEGY||'direct',criteria:'final gate, source references, and explicit component coverage; no proof of semantic correctness',releaseGate:complete&&allPassed?'AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED':'BLOCKED_OR_INCOMPLETE',completeSuite:complete,results,limitation:'One synthetic run per case. Automated checks do not establish semantic correctness or production accuracy. No invoice or payment requests.'},null,2));
 console.log(JSON.stringify({savedDirectory:directory.pathname,total:results.length,automatedPassed:results.filter(x=>x.status==='AUTOMATED_CHECKS_PASSED_REVIEW_REQUIRED').length}));
 
 // A diagnostic report is always saved, but a blocked/incomplete gate must fail CI.

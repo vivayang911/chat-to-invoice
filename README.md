@@ -2,11 +2,11 @@
 
 Turn a negotiated conversation into an itemized fee statement and a PayPal Sandbox collection request. Local Node.js prototype; synthetic examples; English submission interface by default; optional Chinese trial mode.
 
-**Candidate status (October 24, 2026):** 71 local tests pass; the most recent live run of the previous candidate has 15 automated passes and 3 failures (two rate limits, one invalid response). Formal freeze, latest-build live payment acceptance and final submission remain blocked. See the dated acceptance report.
+**Candidate status (October 26, 2026):** Explicit Groq application integration passed a complete final-code 20-case live regression. All 100 local tests pass. A new USD 1.00 current-build Sandbox invoice is SENT, awaiting buyer payment and API PAID verification. Formal freeze, final video and competition submission remain incomplete. See RELEASE-STATUS.json and the dated integration report.
 
 ## Scope
 
-One problem: keep negotiated charges reviewable before invoicing. Agnes `agnes-3.0-flash` extracts charges and original-message references. The program calculates prices × quantities in integer cents. Pending financial items, open issues, missing currency and conflicts with an explicitly accepted customer total block invoicing. The program is responsible for arithmetic; model-only addition errors are retained in an audit when corrected. A checkbox cannot override an unresolved issue: clarify the conversation and analyze again.
+One problem: keep negotiated charges reviewable before invoicing. The configured provider (Agnes `agnes-3.0-flash` or Groq `qwen/qwen3.8-27b`) extracts charges and original-message references. The program calculates prices × quantities in integer cents. Pending financial items, open issues, missing currency and conflicts with an explicitly accepted customer total block invoicing. The program is responsible for arithmetic; model-only addition errors are retained in an audit when corrected. A checkbox cannot override an unresolved issue: clarify the conversation and analyze again.
 
 Seller and customer acknowledge the same fixed statement on separate pages. Editing or requesting changes withdraws that version. The server checks both acknowledgements before creating a PayPal draft and again before sending. Buyer payment occurs on PayPal; only a PayPal status query establishes PAID. The AI has no payment tools.
 
@@ -15,7 +15,7 @@ Supported scope: USD, one merchant, generated sandbox personal recipients, one f
 ## Requirements and setup
 
 - Node.js 22 or later (development validation: Node.js 24).
-- Your own Agnes API key with access to `agnes-3.0-flash`.
+- Your own Agnes API key with access to `agnes-3.0-flash`, or a Groq key for the explicit Groq startup below.
 - Your own PayPal Sandbox REST application, business merchant and separate personal buyer.
 - Network access to both providers. No third-party runtime packages are needed.
 
@@ -105,3 +105,20 @@ Arithmetic authority: the model extracts source-linked rows and should return `a
 Optional isolated free-model comparison: `node scripts/compare-free-models.mjs` reads the existing private Agnes, Zhipu and Groq keys, calls only their fixed endpoints with synthetic cases, and does not change application routing. It stops a provider after a rate-limit error. See [the comparison report](docs/submission/FREE-MODEL-COMPARISON.md). Both evaluator entry points use the same scenario checks.
 
 For an isolated Groq comparison on Windows, run `powershell -File scripts/run-groq-comparison.ps1` (Node 24.15.0 verified). This reuses an existing system proxy for the child process without changing system settings. It does not switch the application model. Use `-ProbeOnly` for connectivity only.
+
+
+## Explicit Groq application startup
+
+The existing `npm start` selects the Agnes baseline unless MODEL_PROVIDER is explicitly set. To run the application with Groq on Windows (Node 24.15.0 verified), create work/groq-model.env from groq-model.env.example only if that private file does not already exist, enter your key locally, then run:
+
+```powershell
+npm run start:groq
+```
+
+This launcher selects only Groq/qwen3.8-27b, uses the existing Windows system proxy in its process when configured, and restores its environment on exit. It does not change system settings. The page displays the configured provider before enabling processing consent, and analysis responses identify that fixed model. A missing key or unexpected returned model stops analysis; there is no automatic fallback.
+
+On other platforms, set MODEL_PROVIDER=groq and run `node --env-file=work/groq-model.env --env-file=work/paypal-sandbox.env src/server.mjs`; configure network access for your own environment. Proxy support via NODE_USE_ENV_PROXY requires a compatible Node runtime.
+
+Groq's token-reset pacing is shared across analyses in one server process. Quota waits use the existing request abort signal; Retry-After can use at most one shared retry and up to 60 seconds, only if the original 90-second analysis deadline permits it. Other provider retry behavior is unchanged. Multi-process or external account usage can still exhaust quota; no availability guarantee is implied. Creating or sending invoices remains a separate confirmed action.
+
+Detailed application integration evidence: [Groq application acceptance](docs/submission/GROQ-APPLICATION-ACCEPTANCE.md).

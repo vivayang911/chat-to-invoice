@@ -1,7 +1,7 @@
 // Retrying model transport is safe for funds; never use this helper for payment writes.
-export async function requestModelJson(url,options,{deadline,budget={remaining:1},fetcher=fetch,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),now=Date.now,onRetry}={}){
+export async function requestModelJson(url,options,{deadline,budget={remaining:1},fetcher=fetch,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),now=Date.now,onRetry,maxRetryDelay=2000}={}){
  async function retry(delay,reason,httpStatus=null){
-  if(budget.remaining<1||delay>2000||deadline-now()<delay+1000)return false;
+  if(budget.remaining<1||delay>Math.min(60000,Math.max(0,maxRetryDelay))||deadline-now()<delay+1000)return false;
   budget.remaining--;onRetry?.({reason,httpStatus,delayMs:delay});await wait(delay);return true;
  }
  while(true){
@@ -9,6 +9,7 @@ export async function requestModelJson(url,options,{deadline,budget={remaining:1
   let response;
   try{response=await fetcher(url,{...options,signal:AbortSignal.timeout(Math.max(1,Math.floor(remaining)))});}
   catch(error){if(error instanceof TypeError&&await retry(250,'NETWORK_ERROR'))continue;throw error;}
+  if(now()>=deadline){await response.body?.cancel().catch(()=>{});throw new DOMException('Model request deadline exceeded.','TimeoutError');}
   if(!response.ok){
    await response.body?.cancel().catch(()=>{});
    const header=response.headers?.get?.('retry-after');let delay=250;
@@ -16,6 +17,6 @@ export async function requestModelJson(url,options,{deadline,budget={remaining:1
    if([429,502,503,504].includes(response.status)&&await retry(delay,'TRANSIENT_HTTP',response.status))continue;
    throw Error(`The model service returned HTTP ${response.status}. Please retry later.`);
   }
-  try{return await response.json();}catch(error){if(error instanceof TypeError&&await retry(250,'RESPONSE_CONNECTION_ERROR'))continue;throw error;}
+  try{const result=await response.json();if(now()>=deadline)throw new DOMException('Model request deadline exceeded.','TimeoutError');return result;}catch(error){if(error instanceof TypeError&&await retry(250,'RESPONSE_CONNECTION_ERROR'))continue;throw error;}
  }
 }

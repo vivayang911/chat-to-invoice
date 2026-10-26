@@ -10,7 +10,7 @@ The problem is a hypothesis, not a measured customer result. There are no real-u
 
 ## Workflow
 
-A simulated seller–customer chat supports English and Chinese. Agnes `agnes-3.0-flash` proposes charge descriptions, prices, quantities, pricing bases and original-message references. The program computes accepted charges in integer cents; it does not use AI arithmetic as the payable total. Pending and cancelled rows are excluded. An unresolved financial item, any remaining open issue, missing currency or a conflict with the customer’s explicitly accepted total blocks invoicing. A model-only addition error is audited and recalculated only when the source-linked rows have no other blocker. Correct the source conversation and analyze again; checking a box cannot settle an unresolved issue.
+A simulated seller–customer chat supports English and Chinese. The configured provider (Agnes `agnes-3.0-flash` or explicitly selected Groq `qwen/qwen3.8-27b`) proposes charge descriptions, prices, quantities, pricing bases and original-message references. The program computes accepted charges in integer cents; it does not use AI arithmetic as the payable total. Pending and cancelled rows are excluded. An unresolved financial item, any remaining open issue, missing currency or a conflict with the customer’s explicitly accepted total blocks invoicing. A model-only addition error is audited and recalculated only when the source-linked rows have no other blocker. Correct the source conversation and analyze again; checking a box cannot settle an unresolved issue.
 
 When settled, the seller saves a fixed fee statement. Seller and customer review the same version on separate pages. A customer correction or seller edit invalidates the version. These are bearer-link acknowledgements, not verified identities, legal signatures or a live messaging integration. This local link works on the same computer only.
 
@@ -30,6 +30,6 @@ The authored 20-case live model suite includes missing currency, cancellation, i
 
 ## Running and submission
 
-Follow README.md and QUICKSTART.md for setup with your own Agnes key and PayPal Sandbox account. The implementation is local-only, USD-only, one merchant, generated sandbox personal recipients and one final invoice total composed of itemized charges. It is not a production billing service.
+Follow README.md and QUICKSTART.md for setup with your own supported provider key and PayPal Sandbox account. The implementation is local-only, USD-only, one merchant, generated sandbox personal recipients and one final invoice total composed of itemized charges. It is not a production billing service.
 
 The local archive is not a public submission. Public repository and YouTube video links must only be added after publication and verification. English demonstration narration is prepared in DEMO-SCRIPT.md. Source repository: https://github.com/vivayang911/chat-to-invoice . No uploaded final video or completed competition submission is claimed here.

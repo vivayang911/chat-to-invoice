@@ -1,3 +1,4 @@
+import {publicModelConfiguration} from './model-provider.mjs';
 import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -20,6 +21,7 @@ const server=http.createServer(async(req,res)=>{
   const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(data));};
   if(req.headers.host!==`127.0.0.1:${port}`){json(403,{error:'Please use the local 127.0.0.1 address.'});return;}
   let pathname;try{pathname=new URL(req.url,origin).pathname;}catch{json(400,{error:'Invalid request URL.'});return;}
+  if(req.method==='GET'&&pathname==='/api/model'){try{json(200,publicModelConfiguration());}catch{json(503,{error:'The server model configuration is unavailable.'});}return;}
   if(req.method==='GET'&&Object.hasOwn(assets,pathname)){const [file,type]=assets[pathname];try{const content=await readAsset(new URL(file,import.meta.url));res.writeHead(200,{'Content-Type':type});res.end(content);}catch{json(503,{error:'The page could not be loaded. Please retry.'});}return;}
   if(req.method!=='POST'||!['/api/analyze','/api/invoices/create','/api/invoices/status','/api/invoices/send','/api/statements/create','/api/statements/status','/api/statements/act'].includes(req.url)){json(404,{error:'Endpoint not found.'});return;}
   if(req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'Invalid request origin or content type.'});return;}
@@ -56,7 +58,7 @@ const server=http.createServer(async(req,res)=>{
     if(data.consent!==true){json(400,{error:'Please confirm anonymization and consent to model processing.'});return;}
     const started=Date.now();const extracted=await analyzeChat(messages,{language:data.language==='zh'?'zh':'en',strategy:'direct'});
     const operationId=randomUUID();if(analyses.size>=100)analyses.delete(analyses.keys().next().value);analyses.set(operationId,extracted);
-    json(200,{extracted,messages,operationId,model:'agnes-3.0-flash',latencyMs:Date.now()-started,checkedAt:new Date().toISOString()});
+    json(200,{extracted,messages,operationId,model:publicModelConfiguration().model,latencyMs:Date.now()-started,checkedAt:new Date().toISOString()});
   }catch(e){const analyzing=req.url==='/api/analyze';json(502,{error:e.name==='TimeoutError'?(analyzing?'AI analysis timed out. No invoice was created or sent. Please retry.':'The request timed out. Query saved invoice status before retrying.'):/^(The model|The server|The billing|Invoice:|Statement:)/.test(e.message)?e.message:(analyzing?'AI analysis failed. Check your connection and retry. No invoice was created or sent.':'The request failed. Query saved invoice status before retrying.')});}finally{if(usesOperationLock)busy=false;}
 });
 server.requestTimeout=110000;

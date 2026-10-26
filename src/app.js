@@ -3,6 +3,7 @@ import {t,language} from './ui-language.mjs';
 import {acknowledgeStatement} from './statement-recovery.mjs';
 import {statementExpired} from './statement-state.mjs';
 const $=id=>document.getElementById(id);
+let modelReady=false;
 import {sampleSets} from './samples.mjs';
 const samples=sampleSets[language];
 function renderMessages(){
@@ -53,20 +54,20 @@ function refresh(){
   $('refreshInvoice').disabled=invoiceBusy;
   $('queryStatement').disabled=statementActionBusy||!statementSnapshot;
   if(statementSnapshot){const saved=statementSnapshot.statement,expired=statementExpired(saved);$('sellerAccept').disabled=statementActionBusy||Boolean(saved.sellerConfirmedAt)||expired||!['AWAITING_CONFIRMATION','CONFIRMED'].includes(saved.status);if(expired)$('partyState').textContent=t('EXPIRED');}
-  const frozen=invoiceBusy||Boolean(invoice)||Boolean(savedOperation())||statementBusy;for(const id of ['sample','speaker','messageText','addMessage','recipient','review','resolved','consent','autoTrack'])$(id).disabled=frozen;for(const button of document.querySelectorAll('.editMessage,.recallMessage'))button.disabled=frozen;
+  const frozen=invoiceBusy||Boolean(invoice)||Boolean(savedOperation())||statementBusy;for(const id of ['sample','speaker','messageText','addMessage','recipient','review','resolved','consent','autoTrack'])$(id).disabled=frozen;$('consent').disabled=frozen||!modelReady;for(const button of document.querySelectorAll('.editMessage,.recallMessage'))button.disabled=frozen;
   $('analyze').disabled=busy||frozen;
   $('newNegotiation').disabled=invoiceBusy;
   $('counter').textContent=t(`${$('chat').value.length.toLocaleString()} / 20,000`);
   $('serviceMark').textContent=t(result?'Built from included items':'');
   $('amountMark').textContent=t(result?'Program-calculated total':'');
 }
-function load(){clearTimeout(autoTimer);previous=null;ledgerSnapshots=[];$('ledgerEntries').replaceChildren();$('ledgerHistory').hidden=true;requestVersion++;invalidate();$('chat').value=samples[$('sample').value];renderMessages();result=null;$('result').hidden=true;$('empty').hidden=false;$('notice').textContent=t('Synthetic example loaded. Analysis sends it to Agnes AI.');refresh();}
+function load(){clearTimeout(autoTimer);previous=null;ledgerSnapshots=[];$('ledgerEntries').replaceChildren();$('ledgerHistory').hidden=true;requestVersion++;invalidate();$('chat').value=samples[$('sample').value];renderMessages();result=null;$('result').hidden=true;$('empty').hidden=false;$('notice').textContent=t('Synthetic example loaded. Analysis sends it to the configured AI provider.');refresh();}
 $('sample').addEventListener('change',load);
 $('chat').addEventListener('input',()=>{queueAnalysis();renderMessages();requestVersion++;invalidate();if(result){$('notice').textContent=t('Chat changed. The previous analysis is no longer valid. Analyze again.');$('result').hidden=true;$('empty').hidden=false;}refresh();});
 for(const id of ['service','amount','recipient'])$(id).addEventListener('input',()=>{invalidate();refresh();});
 for(const id of ['review','resolved'])$(id).addEventListener('change',()=>{const reviewed=$('review').checked,resolved=$('resolved').checked;invalidate();$('review').checked=reviewed;$('resolved').checked=resolved;refresh();});
 $('analyze').addEventListener('click',async()=>{
- clearTimeout(autoTimer);if(busy)return;if(!$('consent').checked){$('notice').textContent=t('Please confirm that you have removed personal data and consent to model processing.');return;}
+ clearTimeout(autoTimer);if(busy)return;if(!modelReady){$('notice').textContent=t('AI provider unavailable. Reload the page before analysis.');return;}if(!$('consent').checked){$('notice').textContent=t('Please confirm that you have removed personal data and consent to model processing.');return;}
  const chat=$('chat').value,token=++requestVersion;previous=result||previous;result=null;invalidate();busy=true;$('analyze').disabled=true;$('analyze').textContent=t('Analyzing conversation…');$('result').hidden=true;$('empty').hidden=false;$('notice').textContent=t('Waiting for the live model. This may take up to 90 seconds.');refresh();
  try{await flushWithdrawals();const response=await fetch('/api/analyze',{signal:AbortSignal.timeout(100000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat,consent:true,language,strategy:$('analysisMode').value})});const data=await response.json();if(!response.ok)throw Error(data.error);if(token!==requestVersion){$('notice').textContent=t('Chat changed during analysis. This result was discarded. Analyze again.');return;}result={...data,chat};render();$('notice').textContent=t(`Completed · ${(data.latencyMs/1000).toFixed(1)} sec · ${data.model}. Human review required.`);}
  catch(e){result=null;$('result').hidden=true;$('empty').hidden=false;$('notice').textContent=t(token===requestVersion?e.message:'Input changed. Analyze again.');}finally{busy=false;$('analyze').disabled=false;$('analyze').textContent=t('Analyze agreement');refresh();}
@@ -235,3 +236,10 @@ async function restoreCheckpoint(){
  }finally{statementBusy=false;refresh();}
 }
 restoreCheckpoint();
+
+// Show the server-selected provider before accepting external-processing consent.
+fetch('/api/model',{cache:'no-store'}).then(async response=>{if(!response.ok)throw Error('unavailable');return response.json();}).then(config=>{
+ if(!['agnes','groq'].includes(config.provider)||typeof config.model!=='string')throw Error('invalid');
+ $('modelProvider').textContent=t('AI provider')+': '+config.label+' · '+config.model;
+ modelReady=true;refresh();
+}).catch(()=>{$('modelProvider').textContent=t('AI provider unavailable. Reload the page before analysis.');modelReady=false;$('consent').checked=false;refresh();});

@@ -2,7 +2,7 @@ import {acceptanceRepairTargets,applyAcceptanceRepair,historicalRepairTargets} f
 import {selectedTextFeeGaps} from './priced-scope.mjs';
 import {explicitBuyerTotal,unresolvedBuyerTotal,uncoveredFinancialTail} from './source-coverage.mjs';
 import {contextualReplies,missingContextualReferences} from './negotiation-context.mjs';
-import {requestModelJson} from './model-transport.mjs';
+import {modelConfiguration,requestConfiguredModel} from './model-provider.mjs';
 import {chronologyPrompt,parseChronology,retainHistoricalAcceptances} from './chronology.mjs';
 import {parseModelJson} from '../scripts/parse-model-json.mjs';
 import {attachBilling,validateBillingItems,normalizeNonBillableShape,hasExplicitUsd,calculateBilling} from './billing.mjs';
@@ -73,11 +73,10 @@ export function addMissingCurrencyWarning(result,messages,language='en'){
  return {...result,pendingIssues:[...new Set([...result.pendingIssues,issue])],evidence:[...result.evidence,{field:'pendingIssues',messageId:messages[0].id,quote:messages[0].text}]};
 }
 export async function analyze(messages,{onResponse,language='en',strategy='direct'}={}) {
-  const key=process.env.AGNES_API_KEY?.trim();
-  if(!key||key.includes('这里填'))throw Error('The server is missing AGNES_API_KEY.');
+  const config=modelConfiguration();
   const deadline=Date.now()+90000,budget={remaining:1},transportRetries=[];
   async function request(conversation,maxTokens=2400){
-   return requestModelJson('https://apihub.agnes-ai.com/v1/chat/completions',{method:'POST',redirect:'error',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify({model:'agnes-3.0-flash',temperature:0,max_tokens:maxTokens,chat_template_kwargs:{enable_thinking:false},messages:conversation})},{deadline,budget,onRetry:retry=>transportRetries.push(retry)});
+   return requestConfiguredModel(config,conversation,{maxTokens,deadline,budget,onRetry:retry=>transportRetries.push(retry)});
   }
   const localized=language==='zh'?' Write service, pendingIssues and every billingItems.description in Simplified Chinese. Keep the schema keys, status enums, decimal amount and USD unchanged. Evidence quotes MUST remain in the original message language and match exactly. Do not translate evidence quotes.':'';
   let events=[];

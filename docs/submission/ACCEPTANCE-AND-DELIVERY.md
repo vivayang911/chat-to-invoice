@@ -183,3 +183,8 @@ Added a constrained historical-reference selection path for uniquely matched PEN
 91 local tests pass, including replay of the previous E11 missing-history response, unchanged pending state and payable blocking, strict response schema, unsupported sources and preservation of existing references. Isolated itemized and stability browser checks pass.
 
 Targeted real E11 run 2026-10-25T12:26:51Z was initially REVIEW_REQUIRED only because component_text was false. Inspection showed a valid row named 50字符文本 priced at USD 60, plus buyer M5 history and a still-pending poster change. The evaluator did not recognize 文本/字符, so its synonym pattern was corrected. The original API result remains untouched; work/evaluation-component-review-20261025.json records the separate offline correction with no further API calls. This was an evaluator false negative, not a missing fee. The model initial response already had history, so the newly added repair branch is proven locally, not claimed as a live-model branch execution. The complete 20-case gate remains blocked. No PayPal calls.
+
+
+### October 26 Groq integration checkpoint
+
+Final-code complete run 2026-10-26T03-14-03-914Z passed all 20 cases in one run, after the earlier 17/20 integration run and separate targeted fixes. 100 local tests passed. The actual Chinese blank-chat browser flow confirmed exact 12 USD itemization and separate-party gating. See GROQ-APPLICATION-ACCEPTANCE.md for limitations, recovered 429s and preserved failures. A new current-build synthetic-role USD1 Sandbox invoice is SENT; buyer payment and API PAID verification are pending. No formal freeze or final submission.

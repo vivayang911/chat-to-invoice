@@ -4,11 +4,11 @@
   "completeSuite": true,
   "cases": 20,
   "automatedPassed": 16,
-  "releaseGate": "BLOCKED_OR_INCOMPLETE",
+  "releaseGate": "AUTOMATED_GATE_PASSED_MANUAL_PAYMENT_ACCEPTANCE_REQUIRED",
   "formalFreeze": false,
   "newLivePaymentVerified": false,
   "publicRepository": "https://github.com/vivayang911/chat-to-invoice",
-  "localTestsPassed": 92,
+  "localTestsPassed": 100,
   "failures": [
     {
       "id": "E05",
@@ -278,5 +278,87 @@
     "result": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
     "limitation": "One run per existing authored regression, not held-out accuracy. Latency includes quota waits. Production still uses Agnes; separate full application integration and payment acceptance remain outstanding."
   },
-  "nextGate": "CONTROLLED_GROQ_APP_INTEGRATION_THEN_END_TO_END_ACCEPTANCE"
+  "nextGate": "BUYER_SANDBOX_PAYMENT_THEN_API_PAID_VERIFICATION",
+  "groqApplicationIntegration": {
+    "date": "2026-10-26",
+    "implemented": true,
+    "activeLocalProvider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "baselineNpmStartProvider": "agnes",
+    "automaticFallback": false,
+    "fixedEndpointAndReturnedIdentityCheck": true,
+    "providerConsentMetadataVerified": true,
+    "initialCompleteRun": {
+      "runId": "2026-10-26T01-38-44-809Z",
+      "cases": 20,
+      "automatedPassed": 17,
+      "failures": [
+        {
+          "id": "E10",
+          "error": "The model service returned HTTP 429. Please retry later."
+        },
+        {
+          "id": "E12",
+          "error": "The operation was aborted due to timeout"
+        },
+        {
+          "id": "E13",
+          "error": "The model service returned HTTP 429. Please retry later."
+        }
+      ],
+      "anomalousE12ElapsedMs": 4898250
+    },
+    "postFixTargetedRun": {
+      "runId": "2026-10-26T03-06-49-142Z",
+      "cases": 3,
+      "automatedPassed": 3,
+      "completeSuite": false
+    },
+    "realBrowserAcceptance": {
+      "caseId": "E19",
+      "amount": "12.00",
+      "latencyMs": 2348,
+      "checks": {
+        "chineseBlankChat": true,
+        "providerDisplayed": true,
+        "threePricedComponents": true,
+        "sellerAloneBlocked": true,
+        "bothConfirmationsUnlock": true,
+        "customerChangeBlocks": true
+      },
+      "realPayPalCalls": 0
+    },
+    "completeFinalCodeSuitePassed": true,
+    "formalFreeze": false,
+    "latestBuildPaymentAcceptance": false,
+    "finalCompleteRun": {
+      "runId": "2026-10-26T03-14-03-914Z",
+      "model": "qwen/qwen3.8-27b",
+      "cases": 20,
+      "automatedPassed": 20,
+      "completeSuite": true,
+      "releaseGate": "AUTOMATED_GATE_PASSED_MANUAL_REVIEW_REQUIRED",
+      "medianLatencyMs": 15055.5,
+      "p95LatencyMs": 41107,
+      "maxLatencyMs": 49970,
+      "http429RecoveredCases": [
+        "E01",
+        "E05",
+        "E07",
+        "E14",
+        "E16"
+      ],
+      "formalFreeze": false,
+      "limitation": "Known authored synthetic regressions once each; not statistical accuracy. Latency includes quota waits and bounded retries."
+    },
+    "sandboxAcceptance": {
+      "amount": "1.00",
+      "currency": "USD",
+      "syntheticRoles": true,
+      "status": "SENT",
+      "checkedAt": "2026-10-26T03:23:16.958Z",
+      "paymentInitiatedByApp": false,
+      "paidVerified": false
+    }
+  }
 }

@@ -19,15 +19,15 @@ private.mkdir(exist_ok=True)
 stage = Path(tempfile.mkdtemp(prefix='preview-stage-', dir=private)) / 'chat-to-invoice'
 stage.mkdir()
 files = [Path(x) for x in ['README.md', 'LICENSE', 'package.json', '.gitignore',
-         'agnes-model.env.example', 'paypal-sandbox.env.example',
+         'agnes-model.env.example', 'groq-model.env.example', 'paypal-sandbox.env.example',
          'scripts/parse-model-json.mjs', 'scripts/parse-model-json.test.mjs',
-         'scripts/evaluate-app-model.mjs', 'scripts/compare-free-models.mjs', 'scripts/groq-model-check.mjs', 'scripts/run-groq-comparison.ps1', 'scripts/package-preview.py',
+         'scripts/evaluate-app-model.mjs', 'scripts/compare-free-models.mjs', 'scripts/groq-model-check.mjs', 'scripts/run-groq-comparison.ps1', 'scripts/start-groq.ps1', 'scripts/package-preview.py',
          'scripts/check-separate-confirmation.cjs', 'scripts/check-stability-ui.cjs', 'scripts/check-recovery-navigation.cjs', 'scripts/evaluate-chronology-probes.mjs',
          'scripts/check-expiry-uncertainty.cjs', 'scripts/check-buyer-link-navigation.cjs', 'scripts/check-itemized-statement.cjs', 'scripts/check-message-withdrawal.cjs',
          'scripts/check-acknowledgement-recovery.cjs',
-         'scripts/check-statement-session.cjs', 'scripts/check-release-flow.cjs', 'scripts/browser-runtime.cjs',
+         'scripts/check-statement-session.cjs', 'scripts/check-provider-consent.cjs', 'scripts/check-groq-live-flow.cjs', 'scripts/check-release-flow.cjs', 'scripts/browser-runtime.cjs',
          'docs/submission/ACCEPTANCE-AND-DELIVERY.md', 'docs/submission/RELEASE-STATUS.json',
-         'docs/submission/PROJECT.md', 'docs/submission/FREE-MODEL-COMPARISON.md', 'docs/submission/MANUAL-DEMO-RECORD.md', 'docs/submission/DEMO-SCRIPT.md',
+         'docs/submission/PROJECT.md', 'docs/submission/FREE-MODEL-COMPARISON.md', 'docs/submission/GROQ-APPLICATION-ACCEPTANCE.md', 'docs/submission/MANUAL-DEMO-RECORD.md', 'docs/submission/DEMO-SCRIPT.md',
          'docs/submission/USER-TRIAL.md', 'docs/submission/QUICKSTART.md']]
 files += [p.relative_to(root) for p in sorted((root / 'src').rglob('*')) if p.is_file()]
 
